@@ -1,2 +1,4 @@
 # genericsuite-mobile
-GenericSuite for mobile applications
+
+GenericSuite for mobile applications package
+
