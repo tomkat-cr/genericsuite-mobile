@@ -1,3 +1,24 @@
-## 0.0.1
+# CHANGELOG
 
-* TODO: Describe initial release.
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Changelog](http://keepachangelog.com/).
+
+
+
+## [Unreleased] - YYYY-MM-DD
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+### Removed
+
+
+## [0.1.0] - 2026-02-05
+
+### Added
+- Initial development of GenericSuite mobile for Flutter package [GS-261].
