@@ -61,13 +61,9 @@ class _AppHomeState extends State<AppHome> {
   @override
   Widget build(BuildContext context) {
     if (!_initialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return const Scaffold(
-      body: Center(child: Text('Hello World')),
-    );
+    return const Scaffold(body: Center(child: Text('Hello World')));
   }
 }

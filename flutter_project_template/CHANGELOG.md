@@ -21,4 +21,4 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [1.0.0+1] - 2026-02-05
 
 ### Added
-- Example app for GenericSuite Mobile.
+- Initial release.

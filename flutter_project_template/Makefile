@@ -32,6 +32,23 @@ clean_logs:
 clean_build:
 	flutter clean && cd android && ./gradlew clean && cd -
 
+clean_ios:
+	flutter clean
+	rm -rf ios/Pods ios/.symlinks ios/Flutter/Flutter.framework ios/Flutter/Flutter.podspec
+	rm -rf ~/Library/Developer/Xcode/DerivedData
+	rm -rf build/ios
+	flutter pub get
+	pod repo update
+	cd ios && \
+	pod deintegrate && \
+	pod install && \
+	sudo xcode-select -s /Applications/Xcode.app && \
+	sudo gem install cocoapods && \
+	pod repo update && \
+	pod install --repo-update && \
+	cd - && \
+	flutter build ios --simulator
+
 fresh: clean install
 
 ## CLI Utilities

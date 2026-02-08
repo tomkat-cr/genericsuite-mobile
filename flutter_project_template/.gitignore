@@ -33,12 +33,3 @@ doc/api/
 
 .idea/
 .vscode/
-
-genericsuite-basecamp/
-assets/docs_manifest.json
-assets/docs/docs_manifest.json
-assets/docs/en/
-assets/docs/es/
-assets/docs/code/
-!assets/docs/assets/images/gs_ai_logo_circle.png
-!assets/docs/assets/images/gs_logo_circle.png

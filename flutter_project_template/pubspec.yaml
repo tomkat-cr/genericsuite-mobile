@@ -41,6 +41,12 @@ dependencies:
   intl: ^0.20.2
   flutter_markdown_plus: ^1.0.7
 
+  genericsuite:
+    git:
+      url: https://github.com/tomkat-cr/genericsuite-mobile
+      ref: develop
+      path: genericsuite
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,7 +62,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/docs/assets/images/gs_logo_circle.png"
+  image_path: "assets/images/app_logo_circle.png"
   min_sdk_android: 21 # android min sdk version
 
 # For information on the generic Dart part of this file, see the
