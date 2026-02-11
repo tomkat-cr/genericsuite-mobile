@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:genericsuite/services/app_callables_super.dart';
 
 import 'app_drawer.dart';
@@ -12,7 +12,7 @@ class AppFrame extends StatelessWidget {
 
   const AppFrame({
     Key? key,
-    required this.storage,
+    // required this.storage,
     required this.body,
     this.title,
     this.floatingActionButton,
@@ -22,7 +22,7 @@ class AppFrame extends StatelessWidget {
     this.showAppMenu = true,
   }) : super(key: key);
 
-  final FlutterSecureStorage storage;
+  // final FlutterSecureStorage storage;
   final Widget body;
   final String? title;
   final Widget? floatingActionButton;
@@ -55,7 +55,8 @@ class AppFrame extends StatelessWidget {
       ),
       // endDrawer: AppDrawer(storage: storage, appCallables: appCallables),
       drawer: showAppMenu
-          ? AppDrawer(storage: storage, appCallables: appCallables)
+          // ? AppDrawer(storage: storage, appCallables: appCallables)
+          ? AppDrawer(appCallables: appCallables)
           : null,
       body: body,
       floatingActionButton: floatingActionButton,

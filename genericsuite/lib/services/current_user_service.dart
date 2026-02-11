@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'http_service.dart';
+import 'locator_service.dart';
 import 'utilities.dart';
 
 const cusDebug = false;
@@ -28,8 +29,12 @@ String getBestApiKey(List<dynamic> userDataApiKeys) {
   return result;
 }
 
-Future<Map<String, dynamic>> getCurrentUserData(FlutterSecureStorage storage) {
-  return loadConfig(storage).then((configStr) {
+// Future<Map<String, dynamic>> getCurrentUserData(FlutterSecureStorage storage) {
+Future<Map<String, dynamic>> getCurrentUserData() {
+  FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+
+  // return loadConfig(storage).then((configStr) {
+  return loadConfig().then((configStr) {
     Map<String, dynamic> config = json.decode(configStr);
     Map<String, dynamic> userData = {
       'config': config,
@@ -54,13 +59,14 @@ Future<Map<String, dynamic>> getCurrentUserData(FlutterSecureStorage storage) {
     if (cusDebug) {
       logDebug('getCurrentUserData | apiUrlUsersGetData: $apiUrlUsersGetData');
     }
-    var api = HttpUtilities(storage);
+    // var api = HttpUtilities(storage);
+    var api = HttpUtilities();
     return api.httpsCall("get", apiUrlUsersGetData, {}, {}, {}).then((data) {
       if (data['error']) {
         return logError(
           'getCurrentUserData | ERROR [1] | data: ${data.toString()}',
           'GCUD-E010',
-          storage,
+          // storage,
         ).then((_) {
           userData['error'] = true;
           userData['errorMessage'] = data['error_message'];
@@ -99,7 +105,7 @@ Future<Map<String, dynamic>> getCurrentUserData(FlutterSecureStorage storage) {
               logError(
                 'getCurrentUserData | ERROR [2] | data: ${data.toString()}',
                 'GCUD-E020',
-                storage,
+                // storage,
               ).then((_) {
                 // Pass
               });
@@ -135,7 +141,7 @@ Future<Map<String, dynamic>> getCurrentUserData(FlutterSecureStorage storage) {
             logError(
               'getCurrentUserData | ERROR [3] | error: $error',
               'GCUD-E030',
-              storage,
+              // storage,
             ).then((_) {
               // Pass
             });

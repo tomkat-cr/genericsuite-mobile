@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import 'general_messages.dart';
+import 'locator_service.dart';
 import 'utilities.dart';
 
 const httpSvcDebug = false;
@@ -14,9 +15,10 @@ const debugConfigValues = false;
 const useServerLog = true;
 
 class HttpUtilities {
-  final FlutterSecureStorage storage;
+  // final FlutterSecureStorage storage;
 
-  HttpUtilities(this.storage);
+  // HttpUtilities(this.storage);
+  HttpUtilities();
 
   String jwtToken = '';
   Map<String, dynamic> configItems = {};
@@ -29,7 +31,8 @@ class HttpUtilities {
     Map<String, dynamic> getParams, {
     bool useServerLog = true,
   }) async {
-    return loadConfig(storage).then((configStr) async {
+    // return loadConfig(storage).then((configStr) async {
+    return loadConfig().then((configStr) async {
       Map<String, dynamic> config = json.decode(configStr);
       String logErrorMessage = '';
 
@@ -138,7 +141,8 @@ class HttpUtilities {
             logErrorMessage =
                 'HttpUtilities | httpsCall | Invalid request type: $requestType';
             if (useServerLog) {
-              await logError(logErrorMessage, 'HC-E010', storage);
+              // await logError(logErrorMessage, 'HC-E010', storage);
+              await logError(logErrorMessage, 'HC-E010');
             } else {
               logErrorRaw(logErrorMessage);
             }
@@ -183,7 +187,8 @@ class HttpUtilities {
         logErrorMessage =
             'HttpUtilities | httpsCall | Error [2]: $errorMessage | response: ${response.toString()}';
         if (useServerLog) {
-          await logError(logErrorMessage, 'HC-E020', storage);
+          // await logError(logErrorMessage, 'HC-E020', storage);
+          await logError(logErrorMessage, 'HC-E020');
         } else {
           logErrorRaw(logErrorMessage);
         }
@@ -245,7 +250,9 @@ Map<String, dynamic> getJwtPayload(String jwtTokenRaw) {
   return jwtPayload;
 }
 
-Future<String> loadConfig(FlutterSecureStorage storage) async {
+// Future<String> loadConfig(FlutterSecureStorage storage) async {
+Future<String> loadConfig() async {
+  final storage = locator<FlutterSecureStorage>();
   String jwtToken = '';
   Map<String, dynamic> configItems = {};
   return storage.read(key: 'jwt').then((jwtTokenValue) {
@@ -292,9 +299,10 @@ Future<void> logServer(
   String message,
   String errorCode,
   String logType,
-  FlutterSecureStorage storage,
+  // FlutterSecureStorage storage,
 ) async {
-  HttpUtilities api = HttpUtilities(storage);
+  // HttpUtilities api = HttpUtilities(storage);
+  HttpUtilities api = HttpUtilities();
   String urlSuffix = "logs";
   String requestMethod = "POST";
   Map<String, dynamic> getParams = {};
@@ -321,27 +329,32 @@ Future<void> logServer(
   }
 }
 
-Future<void> logInfo(String message, FlutterSecureStorage storage) async {
+// Future<void> logInfo(String message, FlutterSecureStorage storage) async {
+Future<void> logInfo(String message) async {
   logInfoRaw(message);
   if (useServerLog) {
-    logServer(message, '', 'INFO', storage);
+    // logServer(message, '', 'INFO', storage);
+    logServer(message, '', 'INFO');
   }
 }
 
-Future<void> logWarning(String message, FlutterSecureStorage storage) async {
+// Future<void> logWarning(String message, FlutterSecureStorage storage) async {
+Future<void> logWarning(String message) async {
   logWarningRaw(message);
   if (useServerLog) {
-    logServer(message, '', 'WARNING', storage);
+    // logServer(message, '', 'WARNING', storage);
+    logServer(message, '', 'WARNING');
   }
 }
 
 Future<void> logError(
   String message,
   String errorCode,
-  FlutterSecureStorage storage,
+  // FlutterSecureStorage storage,
 ) async {
   logErrorRaw('$message [$errorCode]');
   if (useServerLog) {
-    logServer(message, errorCode, 'ERROR', storage);
+    // logServer(message, errorCode, 'ERROR', storage);
+    logServer(message, errorCode, 'ERROR');
   }
 }

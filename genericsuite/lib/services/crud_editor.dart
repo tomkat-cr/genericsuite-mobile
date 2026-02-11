@@ -10,6 +10,7 @@ import 'package:genericsuite/services/crud_editor_sf_users.dart';
 import 'package:genericsuite/services/form_field_service.dart';
 import 'package:genericsuite/services/general_messages.dart';
 import 'package:genericsuite/services/http_service.dart';
+import 'package:genericsuite/services/locator_service.dart';
 import 'package:genericsuite/services/message_service.dart';
 import 'package:genericsuite/services/utilities.dart';
 import 'package:genericsuite/widgets/app_frame.dart';
@@ -18,28 +19,31 @@ const gceMainDebug = false;
 const debugRunCrudCallback = false;
 
 class CrudEditor extends StatefulWidget {
-  final FlutterSecureStorage storage;
+  // final FlutterSecureStorage storage;
   final String jsonFileName;
   final AppCallablesSuper appCallables;
   final Map<String, dynamic>? callbacks;
   final Map<String, dynamic>? props;
-  final Function(FlutterSecureStorage)? backButtonAction;
+  // final Function(FlutterSecureStorage)? backButtonAction;
+  final Function()? backButtonAction;
 
   const CrudEditor({
-    required this.storage,
+    // required this.storage,
     required this.jsonFileName,
     required this.appCallables,
     this.callbacks,
     this.props,
     this.backButtonAction,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   CrudEditorState createState() => CrudEditorState();
 }
 
 class CrudEditorState extends State<CrudEditor> {
+  final FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+
   String userId = '';
   Map<String, dynamic> currentUserData = {};
   Map<String, dynamic> editorConfig = {};
@@ -149,20 +153,21 @@ class CrudEditorState extends State<CrudEditor> {
       if (!callbacks.containsKey('specificFunctions')) {
         callbacks['specificFunctions'] = <String, dynamic>{};
       }
+
       callbacks['specificFunctions']['MandatoryFiltersDbListPreRead'] =
           (
             dynamic data,
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => mandatoryFiltersDbListPreRead(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['MandatoryFiltersDbPreRead'] =
@@ -171,30 +176,31 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => mandatoryFiltersDbPreRead(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
+
       callbacks['specificFunctions']['TimestampDbListPostRead'] =
           (
             dynamic data,
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => timestampDbListPostRead(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['TimestampDbPostRead'] =
@@ -203,14 +209,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => timestampDbPostRead(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['TimestampDbPreWrite'] =
@@ -219,14 +225,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => timestampDbPreWrite(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
 
@@ -236,14 +242,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => usersValidations(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['UsersDbListPreRead'] =
@@ -252,14 +258,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => usersDbListPreRead(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['UsersPasswordValidations'] =
@@ -268,14 +274,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => usersPasswordValidations(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
       callbacks['specificFunctions']['UsersDbPreWrite'] =
@@ -284,14 +290,14 @@ class CrudEditorState extends State<CrudEditor> {
             Map<String, dynamic> editorConfig,
             String action,
             Map<String, dynamic> params,
-            FlutterSecureStorage storage,
+            // FlutterSecureStorage storage,
             BuildContext? context,
           ) async => usersDbPreWrite(
             data,
             editorConfig,
             action,
             params,
-            storage,
+            // storage,
             context,
           );
     } catch (e, stackTrace) {
@@ -301,7 +307,7 @@ class CrudEditorState extends State<CrudEditor> {
         'CRUD | _addStandardCallbacks | ERROR: $e'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       return false;
     }
@@ -333,7 +339,7 @@ class CrudEditorState extends State<CrudEditor> {
           return logError(
             'CRUD | _getEditorConfig | ERROR: $e',
             errorCode,
-            widget.storage,
+            // widget.storage,
           ).then((_) {
             return false;
           });
@@ -526,7 +532,7 @@ class CrudEditorState extends State<CrudEditor> {
         await logError(
           'CRUD | _loadEditorConfig | ERROR [1]: ${editorConfig['error']}',
           errorCode,
-          widget.storage,
+          // widget.storage,
         );
         return false;
       }
@@ -616,7 +622,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadEditorConfig | ERROR [2]: ${editorConfig['error']}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       return false;
     }
@@ -636,9 +642,11 @@ class CrudEditorState extends State<CrudEditor> {
     if (gceMainDebug) {
       logDebug('CRUD | 1) loadconfig...');
     }
-    return widget.storage.read(key: 'user_data').then((userDataValue) {
+    // return widget.storage.read(key: 'user_data').then((userDataValue) {
+    return storage.read(key: 'user_data').then((userDataValue) {
       return getAllConstants().then((constantsMap) {
-        return loadConfig(widget.storage).then((configStr) {
+        // return loadConfig(widget.storage).then((configStr) {
+        return loadConfig().then((configStr) {
           constants = constantsMap;
 
           if (userDataValue == null || userDataValue.isEmpty) {
@@ -722,7 +730,8 @@ class CrudEditorState extends State<CrudEditor> {
     setState(() {
       _isLoading = true;
     });
-    HttpUtilities api = HttpUtilities(widget.storage);
+    // HttpUtilities api = HttpUtilities(widget.storage);
+    HttpUtilities api = HttpUtilities();
     Map<String, dynamic> body = bodyParams.cast<String, dynamic>();
     if (gceMainDebug) {
       logDebug(
@@ -937,7 +946,7 @@ class CrudEditorState extends State<CrudEditor> {
               editorConfig,
               action,
               callingParams,
-              widget.storage,
+              // widget.storage,
               context,
             );
         if (debugRunCrudCallback) {
@@ -957,7 +966,7 @@ class CrudEditorState extends State<CrudEditor> {
         funcType,
         responses,
         data,
-        widget.storage,
+        // widget.storage,
       );
 
       if (error.isNotEmpty) {
@@ -966,7 +975,7 @@ class CrudEditorState extends State<CrudEditor> {
         await logError(
           'CRUD | _runCrudCallback [1] | ${finalResult['error']}',
           finalResult['error_code'],
-          widget.storage,
+          // widget.storage,
         );
       }
     } catch (e, stackTrace) {
@@ -977,7 +986,7 @@ class CrudEditorState extends State<CrudEditor> {
         'CRUD | _runCrudCallback [2] | ${finalResult['error']} [${finalResult['error_code']}]'
         '\nError trace:\n${stackTrace.toString()}',
         finalResult['error_code'],
-        widget.storage,
+        // widget.storage,
       );
     }
 
@@ -1054,7 +1063,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadItems | dbListPreRead | ERROR / callbackResp: ${callbackResp.toString()}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1113,7 +1122,7 @@ class CrudEditorState extends State<CrudEditor> {
         'CRUD | _loadItems | ERROR doing json.decode / localApiResp: ${localApiResp.toString()}'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1140,7 +1149,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadItems | dbListPostRead | ERROR / callbackResp: ${callbackResp.toString()}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1161,7 +1170,7 @@ class CrudEditorState extends State<CrudEditor> {
         'CRUD | _loadItems | ERROR doing List<dynamic>.from / callbackResp: $callbackResp'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       items = originalItems;
       _setStateAndShowMessages();
@@ -1206,7 +1215,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadSelectedItem | dbPreRead | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return {};
@@ -1270,7 +1279,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadSelectedItem | dbPostRead | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return {};
@@ -1292,7 +1301,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _loadSelectedItem | dbPreValidations | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return {};
@@ -1351,7 +1360,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _saveItem | validations | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1371,7 +1380,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _saveItem | dbPreWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1395,7 +1404,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _saveItem | ERROR / localApiResp: $localApiResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1429,7 +1438,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _saveItem | dbPostWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1481,7 +1490,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _deleteItem | validations | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1501,7 +1510,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _deleteItem | dbPreWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       _setStateAndShowMessages();
       return;
@@ -1537,7 +1546,7 @@ class CrudEditorState extends State<CrudEditor> {
       await logError(
         'CRUD | _deleteItem | dbPostWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
-        widget.storage,
+        // widget.storage,
       );
       isEditMode = false;
       _setStateAndShowMessages();
@@ -1642,7 +1651,8 @@ class CrudEditorState extends State<CrudEditor> {
     return Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => widget.backButtonAction!(widget.storage),
+        // builder: (context) => widget.backButtonAction!(widget.storage),
+        builder: (context) => widget.backButtonAction!(),
       ),
     );
   }
@@ -1758,7 +1768,8 @@ class CrudEditorState extends State<CrudEditor> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            widget.backButtonAction!(widget.storage),
+                            // widget.backButtonAction!(widget.storage),
+                            widget.backButtonAction!(),
                       ),
                     );
                   } else {
@@ -1798,7 +1809,7 @@ class CrudEditorState extends State<CrudEditor> {
       ),
       body: DataFormBody(
         action: isCreation ? actionCreate : actionUpdate,
-        storage: widget.storage,
+        // storage: widget.storage,
         editorConfig: editorConfig,
         constants: constants,
         currentUserData: currentUserData,
@@ -1862,7 +1873,7 @@ class CrudEditorState extends State<CrudEditor> {
     }
     return AppFrame(
       showAppMenu: showAppMenu,
-      storage: widget.storage,
+      // storage: widget.storage,
       showBackButton:
           !showAppMenu && (widget.backButtonAction != null || isEditMode),
       action: widget.backButtonAction == null
@@ -1872,7 +1883,8 @@ class CrudEditorState extends State<CrudEditor> {
           : () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => widget.backButtonAction!(widget.storage),
+                // builder: (context) => widget.backButtonAction!(widget.storage),
+                builder: (context) => widget.backButtonAction!(),
               ),
             ),
       appCallables: widget.appCallables,

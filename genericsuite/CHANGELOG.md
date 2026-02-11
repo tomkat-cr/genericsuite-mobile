@@ -18,7 +18,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
-## [0.1.0] - 2026-02-05
+## [0.1.0] - 2026-02-11
+
+### Added
+- Add locator service to register the storage instance as a singleton [GS-261].
+- Add DeviceIdService for getting device id [GS-261].
+
+### Removed
+- Storage parameters were removed from the constructor of all services [GS-261].
+
+
+## [0.0.1] - 2026-02-05
 
 ### Added
 - Initial development of GenericSuite mobile for Flutter package [GS-261].

@@ -1,4 +1,3 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:genericsuite/services/http_service.dart';
 import 'package:genericsuite/services/select_options_service.dart';
 import 'package:genericsuite/services/utilities.dart';
@@ -41,7 +40,7 @@ String buildDescription(Map<String, dynamic> option, List<dynamic> fieldArray) {
 
 /// Generic select generator that mimics the React version
 Future<dynamic> genericSelectGenerator({
-  required FlutterSecureStorage storage,
+  // required FlutterSecureStorage storage,
   required String dbApiUrl,
   required String selectName,
   dynamic filter,
@@ -61,7 +60,8 @@ Future<dynamic> genericSelectGenerator({
     );
   }
 
-  HttpUtilities api = HttpUtilities(storage);
+  // HttpUtilities api = HttpUtilities(storage);
+  HttpUtilities api = HttpUtilities();
   Map<String, dynamic> accessKeysListing = {};
   if (dbFilter != null) {
     accessKeysListing.addAll(dbFilter);
@@ -134,7 +134,7 @@ dynamic _processRows(
 
 /// Helper for select data populator
 Future<Map<String, dynamic>> genericSelectDataPopulator({
-  required FlutterSecureStorage storage,
+  // required FlutterSecureStorage storage,
   required String dbApiUrl,
   required String selectName,
   Map<String, dynamic>? dbFilter,
@@ -144,7 +144,7 @@ Future<Map<String, dynamic>> genericSelectDataPopulator({
   String keyName = "_id",
 }) async {
   var result = await genericSelectGenerator(
-    storage: storage,
+    // storage: storage,
     dbApiUrl: dbApiUrl,
     selectName: selectName,
     dbFilter: dbFilter,

@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/app_callables_super.dart';
 import '../services/crud_editor.dart';
 import '../services/http_service.dart';
+import '../services/locator_service.dart';
 import '../services/message_service.dart';
 import '../services/redirect_service.dart';
 import '../services/utilities.dart';
@@ -18,26 +19,27 @@ const invalidCredsErrorMessage =
     "No account was found matching that username and password";
 
 class LoginPage extends StatefulWidget {
-  final FlutterSecureStorage storage;
+  // final FlutterSecureStorage storage;
   final HomePageBodyBuilder homePageBodyBuilder;
   final AlternateWidgetBuilder alternateWidgetBuilder;
   final AppCallablesSuper appCallables;
   final Map<String, dynamic>? params;
 
   const LoginPage(
-    this.storage,
+    // this.storage,
     this.homePageBodyBuilder,
     this.alternateWidgetBuilder,
     this.appCallables, {
-    Key? key,
+    super.key,
     this.params,
-  }) : super(key: key);
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final FlutterSecureStorage storage = locator<FlutterSecureStorage>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -55,10 +57,12 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void displayDialog(context, title, text) => showDialog(
-    context: context,
-    builder: (context) => AlertDialog(title: Text(title), content: Text(text)),
-  );
+  void displayDialog(BuildContext context, String title, String text) =>
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(title: Text(title), content: Text(text)),
+      );
 
   Map<String, dynamic> validateUserPass(String username, String password) {
     Map<String, dynamic> result = {"error": '', "message": ''};
@@ -80,7 +84,8 @@ class _LoginPageState extends State<LoginPage> {
     Map<String, dynamic> headers = {
       'Authorization': "Basic ${bToA("$username:$password")}",
     };
-    HttpUtilities api = HttpUtilities(widget.storage);
+    // HttpUtilities api = HttpUtilities(widget.storage);
+    HttpUtilities api = HttpUtilities();
     return api.httpsCall("post", apiUrlUsersLogin, headers, {}, {});
   }
 
@@ -90,7 +95,8 @@ class _LoginPageState extends State<LoginPage> {
   ) async {
     String apiUrlUsersSignIn = "users";
     Map<String, dynamic> body = {"username": username, "password": password};
-    HttpUtilities api = HttpUtilities(widget.storage);
+    // HttpUtilities api = HttpUtilities(widget.storage);
+    HttpUtilities api = HttpUtilities();
     return api.httpsCall("post", apiUrlUsersSignIn, {}, body, {});
   }
 
@@ -104,6 +110,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _processLogin(BuildContext context) async {
+    if (!context.mounted) return;
+
     _initMessages();
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -145,7 +153,8 @@ class _LoginPageState extends State<LoginPage> {
     jwt = apiResponse['resultset']['token'];
     errorMessage = '';
     if (jwt.isNotEmpty) {
-      await widget.storage.write(key: 'jwt', value: jwt);
+      // await widget.storage.write(key: 'jwt', value: jwt);
+      await storage.write(key: 'jwt', value: jwt);
 
       apiResponse['resultset'].remove('token');
       if (apiResponse['resultset'].containsKey('_id')) {
@@ -153,14 +162,15 @@ class _LoginPageState extends State<LoginPage> {
         apiResponse['resultset'].remove('_id');
       }
 
-      await widget.storage.write(
+      // await widget.storage.write(
+      await storage.write(
         key: 'user_data',
         value: json.encode(apiResponse['resultset']),
       );
 
       if (context.mounted) {
         redirectMainScreen(
-          widget.storage,
+          // widget.storage,
           context,
           widget.homePageBodyBuilder,
           widget.alternateWidgetBuilder,
@@ -181,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
   void _processSignUp(BuildContext context) async {
     _initMessages();
     Map<String, dynamic> callbacks = widget.appCallables.getUserCallbacks(
-      widget.storage,
+      // widget.storage,
       context,
     );
     Map<String, dynamic> props = {
@@ -196,12 +206,13 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(
         builder: (context) => CrudEditor(
-          storage: widget.storage,
+          // storage: widget.storage,
           jsonFileName: 'onboarding_users.json',
           appCallables: widget.appCallables,
           callbacks: callbacks,
           props: props,
-          backButtonAction: (storage) {
+          // backButtonAction: (storage) {
+          backButtonAction: () {
             if (loginDebug) {
               logDebug('LoginScreen | backButtonAction');
             }
