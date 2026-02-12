@@ -68,8 +68,8 @@ flutter create exampleapp
   genericsuite:
     git:
       url: https://github.com/tomkat-cr/genericsuite-mobile
-      ref: main
-      path: genericsuite
+      ref: main  # or develop
+      path: genericsuite_flutter
 ```
 
 - Install the dependencies.

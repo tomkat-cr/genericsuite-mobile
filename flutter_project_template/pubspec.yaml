@@ -44,7 +44,7 @@ dependencies:
     git:
       url: https://github.com/tomkat-cr/genericsuite-mobile
       ref: develop
-      path: genericsuite
+      path: genericsuite_flutter
 
 dev_dependencies:
   flutter_test:

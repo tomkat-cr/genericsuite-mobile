@@ -18,6 +18,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.2.0] - 2026-02-12
+
+### Changed
+- Path "genericsuite" renamed to "genericsuite_flutter" [GS-261].
+
+
 ## [0.1.1] - 2026-02-12
 
 ### Added
