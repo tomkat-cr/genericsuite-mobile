@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import 'theme_config_defaults.dart';
 
 class AppCallablesSuper {
@@ -35,10 +33,7 @@ class AppCallablesSuper {
     throw UnimplementedError();
   }
 
-  Map<String, dynamic> getUserCallbacks(
-    // FlutterSecureStorage storage,
-    BuildContext context,
-  ) {
+  Map<String, dynamic> getUserCallbacks(BuildContext context) {
     return {'specificFunctions': {}, "components": {}, "childComponents": {}};
   }
 }

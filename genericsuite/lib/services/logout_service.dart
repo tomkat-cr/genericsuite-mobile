@@ -11,7 +11,6 @@ import 'locator_service.dart';
   */
 void logOut(
   BuildContext context,
-  // FlutterSecureStorage storage,
   HomePageBodyBuilder homePageBodyBuilder,
   AlternateWidgetBuilder alternateWidgetBuilder,
   AppCallablesSuper appCallables,
@@ -27,12 +26,8 @@ void logOut(
   Navigator.pushReplacement(
     context,
     MaterialPageRoute(
-      builder: (context) => LoginPage(
-        // storage,
-        homePageBodyBuilder,
-        alternateWidgetBuilder,
-        appCallables,
-      ),
+      builder: (context) =>
+          LoginPage(homePageBodyBuilder, alternateWidgetBuilder, appCallables),
     ),
   );
 }

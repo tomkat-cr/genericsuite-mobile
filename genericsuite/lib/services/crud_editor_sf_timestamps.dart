@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import 'crud_editor_commons.dart';
 import 'http_service.dart';
 import 'timestamp_utilities.dart';
@@ -17,7 +15,6 @@ Future<Map<String, dynamic>> timestampDbListPostRead(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
@@ -54,7 +51,6 @@ Future<Map<String, dynamic>> timestampDbPostRead(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   if (gceSfTsDebug) {
@@ -99,7 +95,6 @@ Future<Map<String, dynamic>> timestampDbPreWrite(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   if (gceSfTsDebug) {
@@ -132,7 +127,6 @@ Future<Map<String, dynamic>> timestampDbPreWrite(
       'CRUD | timestampDbPreWrite | Field: $fieldName | Field Value: $fieldValue | Error: ${e.toString()} [${result['error_code']}]'
       '\nError Trace:\n${stackTrace.toString()}',
       result['error_code'],
-      // storage,
     );
   }
   if (gceSfTsDebug) {

@@ -1,6 +1,6 @@
 name: genericsuite
 description: "GenericSuite Mobile package."
-version: 0.1.0
+version: 0.1.1
 homepage:
 
 environment:
@@ -17,6 +17,7 @@ dependencies:
   get_it: ^9.2.0
   http: ^1.6.0
   intl: ^0.20.2
+  network_info_plus: ^7.0.0
   uuid: ^4.5.2
 
 dev_dependencies:

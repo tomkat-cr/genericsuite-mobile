@@ -18,6 +18,15 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.1.1] - 2026-02-12
+
+### Added
+- Ip address service to be used in the users onboarding [GS-252] [GS-261].
+
+### Changed
+- Remove storage old code comments [GS-261].
+
+
 ## [0.1.0] - 2026-02-11
 
 ### Added

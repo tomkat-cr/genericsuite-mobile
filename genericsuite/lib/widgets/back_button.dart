@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ButtonBack extends StatelessWidget {
-  // const ButtonBack({Key? key,
-  // }) : super(key: key);
   const ButtonBack({super.key});
 
   @override

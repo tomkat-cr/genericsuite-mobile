@@ -46,3 +46,12 @@ class DeviceIdService {
     return deviceId;
   }
 }
+
+/*
+// You can call the getDeviceId method in your app's initialization or wherever you need the unique ID.
+
+import 'package:genericsuite/services/deviceid_service.dart';
+
+String? deviceId = await DeviceIdService.getDeviceId();
+print("Device ID: $deviceId");
+*/

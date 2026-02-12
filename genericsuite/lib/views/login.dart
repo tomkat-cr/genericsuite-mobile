@@ -19,14 +19,12 @@ const invalidCredsErrorMessage =
     "No account was found matching that username and password";
 
 class LoginPage extends StatefulWidget {
-  // final FlutterSecureStorage storage;
   final HomePageBodyBuilder homePageBodyBuilder;
   final AlternateWidgetBuilder alternateWidgetBuilder;
   final AppCallablesSuper appCallables;
   final Map<String, dynamic>? params;
 
   const LoginPage(
-    // this.storage,
     this.homePageBodyBuilder,
     this.alternateWidgetBuilder,
     this.appCallables, {
@@ -84,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
     Map<String, dynamic> headers = {
       'Authorization': "Basic ${bToA("$username:$password")}",
     };
-    // HttpUtilities api = HttpUtilities(widget.storage);
     HttpUtilities api = HttpUtilities();
     return api.httpsCall("post", apiUrlUsersLogin, headers, {}, {});
   }
@@ -95,7 +92,6 @@ class _LoginPageState extends State<LoginPage> {
   ) async {
     String apiUrlUsersSignIn = "users";
     Map<String, dynamic> body = {"username": username, "password": password};
-    // HttpUtilities api = HttpUtilities(widget.storage);
     HttpUtilities api = HttpUtilities();
     return api.httpsCall("post", apiUrlUsersSignIn, {}, body, {});
   }
@@ -153,7 +149,6 @@ class _LoginPageState extends State<LoginPage> {
     jwt = apiResponse['resultset']['token'];
     errorMessage = '';
     if (jwt.isNotEmpty) {
-      // await widget.storage.write(key: 'jwt', value: jwt);
       await storage.write(key: 'jwt', value: jwt);
 
       apiResponse['resultset'].remove('token');
@@ -162,7 +157,6 @@ class _LoginPageState extends State<LoginPage> {
         apiResponse['resultset'].remove('_id');
       }
 
-      // await widget.storage.write(
       await storage.write(
         key: 'user_data',
         value: json.encode(apiResponse['resultset']),
@@ -170,7 +164,6 @@ class _LoginPageState extends State<LoginPage> {
 
       if (context.mounted) {
         redirectMainScreen(
-          // widget.storage,
           context,
           widget.homePageBodyBuilder,
           widget.alternateWidgetBuilder,
@@ -191,7 +184,6 @@ class _LoginPageState extends State<LoginPage> {
   void _processSignUp(BuildContext context) async {
     _initMessages();
     Map<String, dynamic> callbacks = widget.appCallables.getUserCallbacks(
-      // widget.storage,
       context,
     );
     Map<String, dynamic> props = {
@@ -206,12 +198,10 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(
         builder: (context) => CrudEditor(
-          // storage: widget.storage,
           jsonFileName: 'onboarding_users.json',
           appCallables: widget.appCallables,
           callbacks: callbacks,
           props: props,
-          // backButtonAction: (storage) {
           backButtonAction: () {
             if (loginDebug) {
               logDebug('LoginScreen | backButtonAction');

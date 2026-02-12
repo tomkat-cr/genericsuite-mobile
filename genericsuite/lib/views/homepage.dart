@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import '../services/app_callables_super.dart';
 import '../services/current_user_service.dart';
 import '../services/message_service.dart';
@@ -11,22 +9,15 @@ import '../widgets/app_frame.dart';
 
 const debug = false;
 
-typedef HomePageBodyBuilder =
-    Widget Function(
-      // FlutterSecureStorage storage,
-      Map<String, dynamic> userData,
-    );
+typedef HomePageBodyBuilder = Widget Function(Map<String, dynamic> userData);
 
-// typedef AlternateWidgetBuilder = Widget Function(FlutterSecureStorage storage);
 typedef AlternateWidgetBuilder = Widget Function();
 
 class HomePage extends StatefulWidget {
-  // final FlutterSecureStorage storage;
   final HomePageBodyBuilder homePageBodyBuilder;
   final AlternateWidgetBuilder alternateWidgetBuilder;
   final AppCallablesSuper appCallables;
 
-  // const HomePage(this.storage, this.homePageBodyBuilder,
   const HomePage(
     this.homePageBodyBuilder,
     this.alternateWidgetBuilder,
@@ -94,7 +85,6 @@ class _HomePageState extends State<HomePage> {
       // Cache user data to avoid repeated API calls to "/users/current_user_d"
       return Future.value(userData);
     }
-    // return getCurrentUserData(widget.storage).then((data) {
     return getCurrentUserData()
         .then((data) {
           if (data['errorMessage'].isNotEmpty) {
@@ -113,14 +103,12 @@ class _HomePageState extends State<HomePage> {
   Widget buildHomePage(BuildContext context) {
     // const title = "Dashboard";
     return AppFrame(
-      // storage: widget.storage,
       appCallables: widget.appCallables,
       body: Center(
         child: FutureBuilder(
           future: loadHomeData(true),
           builder: (context, snapshot) =>
               snapshot.hasData && errorMessage.isEmpty
-              // ? widget.homePageBodyBuilder(widget.storage, userData)
               ? widget.homePageBodyBuilder(userData)
               : snapshot.hasError || errorMessage.isNotEmpty
               ? snapshot.hasError

@@ -11,20 +11,18 @@ const acsDebug = false;
 const Duration debounceDuration = Duration(milliseconds: 500);
 
 class AsyncAutocomplete extends StatefulWidget {
-  // final FlutterSecureStorage storage;
   final Map<String, dynamic> config;
   final String value;
   final Function(String) onSelected;
   final Function(String, String, int) setError;
 
   const AsyncAutocomplete({
-    // required this.storage,
     required this.config,
     required this.value,
     required this.onSelected,
     required this.setError,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<AsyncAutocomplete> createState() => AsyncAutocompleteState();
@@ -52,7 +50,6 @@ class AsyncAutocompleteState extends State<AsyncAutocomplete> {
     Iterable<Map<String, dynamic>> optionsRetrieved = {};
     try {
       optionsRetrieved = await _ApiCall(
-        // widget.storage,
         widget.config,
         widget.setError,
       ).search(_currentQuery!);
@@ -116,11 +113,9 @@ class AsyncAutocompleteState extends State<AsyncAutocomplete> {
 
 // Remote API
 class _ApiCall {
-  // FlutterSecureStorage storage;
   Map<String, dynamic> widgetConfig;
   Function(String, String, int) setError;
 
-  // _ApiCall(this.storage, this.widgetConfig, this.setError);
   _ApiCall(this.widgetConfig, this.setError);
 
   // Searches the options, but injects a fake "network" delay.
@@ -195,7 +190,6 @@ class _ApiCall {
     dynamic bodyParams,
     Map<String, dynamic> getParams = const {},
   }) async {
-    // HttpUtilities api = HttpUtilities(storage);
     HttpUtilities api = HttpUtilities();
     Map<String, dynamic> body = bodyParams.cast<String, dynamic>();
     if (acsDebug) {
@@ -218,14 +212,12 @@ class _ApiCall {
 }
 
 class SuggestionDropdown extends StatefulWidget {
-  // final FlutterSecureStorage storage;
   final Map<String, dynamic> config;
   final String value;
   final Function(String) onSelected;
   final Function(String, String, int) setError;
 
   const SuggestionDropdown({
-    // required this.storage,
     required this.config,
     required this.value,
     required this.onSelected,
@@ -285,7 +277,6 @@ class SuggestionDropdownState extends State<SuggestionDropdown> {
       children: <Widget>[
         Text(widget.config['label']),
         AsyncAutocomplete(
-          // storage: widget.storage,
           config: widget.config,
           value: widget.value,
           onSelected: widget.onSelected,

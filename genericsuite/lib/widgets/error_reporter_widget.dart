@@ -7,7 +7,6 @@ const showScaffold = true;
 class ErrorReporter extends StatelessWidget {
   final String message;
 
-  // const ErrorReporter({Key? key, required this.message}) : super(key: key);
   const ErrorReporter({super.key, required this.message});
 
   @override

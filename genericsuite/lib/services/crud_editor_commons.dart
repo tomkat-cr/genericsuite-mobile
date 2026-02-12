@@ -20,7 +20,6 @@ typedef CrudCallback =
       Map<String, dynamic> editorConfig,
       String action,
       Map<String, dynamic> params,
-      // FlutterSecureStorage storage,
       BuildContext? context,
     );
 
@@ -56,11 +55,9 @@ Future<Map<String, dynamic>> voidCrudCallback(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
-  // final FlutterSecureStorage storage = locator<FlutterSecureStorage>();
 
   if (context == null || context.mounted == false) return result;
   switch (action) {
@@ -105,7 +102,6 @@ Future<Map<String, dynamic>> reduceAllResponses(
   String funcType,
   List<dynamic> responses,
   dynamic data,
-  // FlutterSecureStorage storage,
 ) async {
   bool listTypeFieldValues = isAListingCallable(funcType);
 
@@ -189,7 +185,6 @@ Future<Map<String, dynamic>> reduceAllResponses(
       'CRUD_commons | reduceAllResponses | funcType: $funcType | ERROR: $e'
       '\nError Trace:\n${stackTrace.toString()}',
       responsesReduced['error_code'],
-      // storage,
     );
   }
   return responsesReduced;

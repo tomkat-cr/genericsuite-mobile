@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
 import 'crud_editor_commons.dart';
 
 const gceSfUsrDebug = false;
@@ -11,7 +9,6 @@ Future<Map<String, dynamic>> usersValidations(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
@@ -62,7 +59,6 @@ Future<Map<String, dynamic>> usersDbListPreRead(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
@@ -81,7 +77,6 @@ Future<Map<String, dynamic>> usersPasswordValidations(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
@@ -110,7 +105,6 @@ Future<Map<String, dynamic>> usersDbPreWrite(
   Map<String, dynamic> editorConfig,
   String action,
   Map<String, dynamic> params,
-  // FlutterSecureStorage storage,
   BuildContext? context,
 ) async {
   Map<String, dynamic> result = genericFuncArrayDefaultValue(data);

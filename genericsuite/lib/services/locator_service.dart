@@ -8,5 +8,11 @@ void setupLocator() {
   locator.registerLazySingleton(() => FlutterSecureStorage());
 }
 
-// Access it anywhere in your app
-// final storage = locator<FlutterSecureStorage>();
+/*
+// Access it anywhere in your app where storage ir really needed
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:genericsuite/services/locator_service.dart';
+
+final storage = locator<FlutterSecureStorage>();
+*/

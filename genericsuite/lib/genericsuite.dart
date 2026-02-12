@@ -15,6 +15,7 @@ export 'services/deviceid_service.dart';
 export 'services/form_field_service.dart';
 export 'services/general_messages.dart';
 export 'services/http_service.dart';
+export 'services/ip_address_service.dart';
 export 'services/locator_service.dart';
 export 'services/logout_service.dart';
 export 'services/message_service.dart';

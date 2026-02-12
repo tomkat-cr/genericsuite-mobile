@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:genericsuite/services/app_callables_super.dart';
 
 import '../services/http_service.dart';
@@ -15,10 +14,8 @@ const acceptedUserGroups = ['users'];
 const defaultUserGroup = 'users';
 
 class AppDrawer extends StatefulWidget {
-  // final FlutterSecureStorage storage;
   final AppCallablesSuper appCallables;
 
-  // const AppDrawer({Key? key, required this.storage, required this.appCallables})
   const AppDrawer({super.key, required this.appCallables});
 
   @override
@@ -119,7 +116,6 @@ class _AppDrawerState extends State<AppDrawer> {
     setState(() {
       _isLoading = true;
     });
-    // return loadConfig(widget.storage).then((configStr) {
     return loadConfig().then((configStr) {
       return getJsonFileList(configFilename).then((menuConfigRaw) {
         Map<String, dynamic> config = json.decode(configStr);
@@ -293,15 +289,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     item['callable']['function'] != null)) {
               Navigator.pop(context); // Close the drawer
               if (item['callable']['function'] != null) {
-                // item['callable']['function'](context, widget.storage);
                 item['callable']['function'](context);
               } else {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        // item['callable']['widget'](widget.storage),
-                        item['callable']['widget'](),
+                    builder: (context) => item['callable']['widget'](),
                   ),
                 );
               }
