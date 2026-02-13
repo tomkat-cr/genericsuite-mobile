@@ -18,6 +18,13 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.3.1] - 2026-02-13
+
+### Fixed
+- On "genericsuite_flutter":
+  - Fix `CreateGsApp` widget to properly initialize the app and display the main screen [GS-261].
+
+
 ## [0.3.0] - 2026-02-13
 
 ### Added

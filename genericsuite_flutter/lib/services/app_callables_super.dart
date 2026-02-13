@@ -46,7 +46,26 @@ class AppCallablesSuper {
    */
   Map<String, dynamic> getMenuCallables() {
     // Example:
-    // return {"HomePage": {"widget": () => HomePage((d) => HomePageBody(d, this), () => AnyOtherWidget(), this), "icon": Icons.dashboard,"args": {}}},
+    // return {
+    //   "HomePage": {
+    //     "widget": () =>
+    //         HomePage(homePageBodyBuilder: (userData) => HomePageBody(userData)),
+    //     "icon": Icons.dashboard,
+    //     "args": {}
+    //   },
+    //   "UserProfileEditor": {
+    //     "widget": () => UserProfile(),
+    //     "icon": Icons.person,
+    //     "args": {}
+    //   },
+    //   "BillingEditor": {"widget": null, "icon": Icons.payment, "args": {}},
+    //   "|about|": {"widget": () => About(), "icon": Icons.info, "args": {}},
+    //   "logout": {
+    //     "function": (context) => logOut(context),
+    //     "icon": Icons.logout,
+    //     "args": {}
+    //   },
+    // };
     throw UnimplementedError();
   }
 
@@ -56,7 +75,7 @@ class AppCallablesSuper {
   Map<String, dynamic> getMainScreenElements() {
     // Example:
     // return {
-    //   "mainScreen": () => HomePage((userData) => HomePageBody(userData, this)),
+    //   "mainScreen": () => HomePage(homePageBodyBuilder: (userData) => HomePageBody(userData)),
     //   "alternateScreen": () => AnyOtherWidget(),
     //   "redirect": false, // or true to redirect to alternate screen
     //   "icon": Icons.dashboard,
@@ -77,7 +96,7 @@ class AppCallablesSuper {
   Widget mainScreenWidget() {
     // Example:
     // return getMainScreen(
-    //   (userData) => HomePageBody(userData, this),
+    //   (userData) => HomePageBody(userData),
     //   () => AnyOtherWidget(),
     //   false, // or true to redirect to alternate screen
     // );

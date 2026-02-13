@@ -21,9 +21,9 @@ const loginInitialParams = {
 };
 
 class CreateGsApp extends StatefulWidget {
-  const CreateGsApp({super.key, required this.appCallables});
-
   final AppCallablesSuper appCallables;
+
+  const CreateGsApp({super.key, required this.appCallables});
 
   @override
   State<CreateGsApp> createState() => CreateGsAppState();
@@ -38,12 +38,6 @@ class CreateGsAppState extends State<CreateGsApp> {
   late String? ipPublic;
 
   Future<String> get initEnvironmentAndGetJwt async {
-    setupStorageLocator();
-    storage = locator<FlutterSecureStorage>();
-
-    setupAppCallablesLocator(widget.appCallables);
-    appCallables = appCallablesLocator.get<AppCallablesSuper>();
-
     configItems = await ConfigService.getConfigItems();
     deviceId = await DeviceIdService.getDeviceId();
     ipLocal = await getLocalIpAddress();
@@ -52,6 +46,17 @@ class CreateGsAppState extends State<CreateGsApp> {
     var jwt = await storage.read(key: "jwt");
     if (jwt == null) return "";
     return jwt;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    setupStorageLocator();
+    storage = locator<FlutterSecureStorage>();
+
+    setupAppCallablesLocator(widget.appCallables);
+    appCallables = appCallablesLocator.get<AppCallablesSuper>();
   }
 
   @override
@@ -73,11 +78,11 @@ class CreateGsAppState extends State<CreateGsApp> {
       home: FutureBuilder(
         future: initEnvironmentAndGetJwt,
         builder: (context, snapshot) {
+          if (!snapshot.hasData) return const CircularProgressIndicator();
+
           if (createGsAppDebug) {
             logDebug('${appInfo['name']} | configItems: $configItems');
           }
-
-          if (!snapshot.hasData) return const CircularProgressIndicator();
 
           configItems['deviceId'] = deviceId;
           configItems['ipLocal'] = ipLocal;
