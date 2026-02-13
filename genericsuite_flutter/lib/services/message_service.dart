@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'app_callables_super.dart';
+import 'locator_service.dart';
 // import 'theme_config.dart';
 import 'utilities.dart';
 
@@ -21,10 +22,11 @@ const defaultDuration = Duration(seconds: 40);
 Future<bool> showScaffoldMessage(
   String message,
   BuildContext context,
-  String type,
-  AppCallablesSuper appCallables, [
+  String type, [
   bool waitForOk = true,
 ]) {
+  final AppCallablesSuper appCallables = appCallablesLocator
+      .get<AppCallablesSuper>();
   final Completer<bool> response = Completer<bool>();
   final scaffoldMessenger = ScaffoldMessenger.of(context);
   final snackBar = SnackBar(
@@ -84,11 +86,7 @@ Future<bool> showScaffoldMessage(
 /*
   * Show scaffold messages
   */
-void showScaffoldMessages(
-  BuildContext context,
-  Map<String, dynamic> messages,
-  AppCallablesSuper appCallables,
-) {
+void showScaffoldMessages(BuildContext context, Map<String, dynamic> messages) {
   if (msSvDebug) {
     logDebug('CRUD | showScaffoldMessages | messages: ${messages.toString()}');
   }
@@ -102,19 +100,12 @@ void showScaffoldMessages(
       '${messages['errorMessage']}${messages['errorCode']?.isNotEmpty ? '\n${messages['errorCode']}' : ''}',
       context,
       typeError,
-      appCallables,
       messages['errorWaitForOk'],
     );
   }
   if (messages.containsKey('infoMessage') &&
       messages['infoMessage']?.isNotEmpty) {
-    showScaffoldMessage(
-      messages['infoMessage'],
-      context,
-      typeInfo,
-      appCallables,
-      false,
-    );
+    showScaffoldMessage(messages['infoMessage'], context, typeInfo, false);
   }
 }
 
@@ -124,9 +115,8 @@ void showScaffoldMessages(
 void scheduleMessagesBindings(
   BuildContext context,
   Map<String, dynamic> messages,
-  AppCallablesSuper appCallables,
 ) {
   SchedulerBinding.instance.addPostFrameCallback((_) {
-    showScaffoldMessages(context, messages, appCallables);
+    showScaffoldMessages(context, messages);
   });
 }

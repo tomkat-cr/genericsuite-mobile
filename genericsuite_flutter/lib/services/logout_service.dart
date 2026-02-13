@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../views/homepage.dart';
 import '../views/login.dart';
-import 'app_callables_super.dart';
 import 'locator_service.dart';
 
 /*
   * Logout
   */
-void logOut(
-  BuildContext context,
-  HomePageBodyBuilder homePageBodyBuilder,
-  AlternateWidgetBuilder alternateWidgetBuilder,
-  AppCallablesSuper appCallables,
-) {
+void logOut(BuildContext context) {
   FlutterSecureStorage storage = locator<FlutterSecureStorage>();
 
   // Delete user data to let the login page use the new user data
@@ -25,9 +18,6 @@ void logOut(
   // Navigate to the login page
   Navigator.pushReplacement(
     context,
-    MaterialPageRoute(
-      builder: (context) =>
-          LoginPage(homePageBodyBuilder, alternateWidgetBuilder, appCallables),
-    ),
+    MaterialPageRoute(builder: (context) => LoginPage()),
   );
 }

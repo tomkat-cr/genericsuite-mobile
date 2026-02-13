@@ -18,6 +18,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.3.0] - 2026-02-13
+
+### Added
+- Introduce `AppCallablesSuper` locator to centralize app navigation and callbacks [GS-261].
+- Introduce `routing_services` to have routeItem() available beyond the AppDrawer widget [GS-261].
+- Introduce `CreateGsApp` to standardize the app bootstrap [GS-261].
+- `getAppInfo`, `getMainScreenElements`, `mainScreenWidget`, and `runRedirectMainScreen` methods to the AppCallablesSuper class to avoid repeating the getMainScreen() and redirectMainScreen() with the same parameters all over the app [GS-261].
+
+### Removed
+- The `appCallables` parameter of CrudEditor, logOut, showScaffoldMessage, showScaffoldMessages, getMainScreen, redirectMainScreen, HomePage, LoginPage, AppDrawer, and AppFrame [GS-261].
+- The `homePageBodyBuilder` and `alternateWidgetBuilder` parameters of logOut, HomePage, and LoginPage [GS-261].
+
+
 ## [0.2.0] - 2026-02-12
 
 ### Changed
@@ -27,7 +40,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [0.1.1] - 2026-02-12
 
 ### Added
-- Ip address service to be used in the users onboarding [GS-252] [GS-261].
+- Introduce Ip address service to be used in the users onboarding [GS-252] [GS-261].
 
 ### Changed
 - Remove storage old code comments [GS-261].
@@ -36,8 +49,8 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [0.1.0] - 2026-02-11
 
 ### Added
-- Add locator service to register the storage instance as a singleton [GS-261].
-- Add DeviceIdService for getting device id [GS-261].
+- Introduce locator service to register the storage instance as a singleton [GS-261].
+- Introduce DeviceIdService for getting device id [GS-261].
 
 ### Removed
 - Storage parameters were removed from the constructor of all services [GS-261].

@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:genericsuite/services/app_callables_super.dart';
 import 'package:genericsuite/services/crud_editor_commons.dart';
 import 'package:genericsuite/services/crud_editor_sf_filters.dart';
 import 'package:genericsuite/services/crud_editor_sf_timestamps.dart';
@@ -20,14 +19,12 @@ const debugRunCrudCallback = false;
 
 class CrudEditor extends StatefulWidget {
   final String jsonFileName;
-  final AppCallablesSuper appCallables;
   final Map<String, dynamic>? callbacks;
   final Map<String, dynamic>? props;
   final Function()? backButtonAction;
 
   const CrudEditor({
     required this.jsonFileName,
-    required this.appCallables,
     this.callbacks,
     this.props,
     this.backButtonAction,
@@ -81,7 +78,7 @@ class CrudEditorState extends State<CrudEditor> {
       'errorCode': errorCode,
       'infoMessage': infoMessage,
       'errorWaitForOk': errorWaitForOk,
-    }, widget.appCallables);
+    });
     errorMessage = "";
     errorCode = "";
     errorWaitForOk = true;
@@ -1804,7 +1801,6 @@ class CrudEditorState extends State<CrudEditor> {
                 builder: (context) => widget.backButtonAction!(),
               ),
             ),
-      appCallables: widget.appCallables,
       title: editorConfig.isNotEmpty && editorConfig.containsKey('title')
           ? editorConfig['title']
           : "",

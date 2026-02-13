@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:genericsuite/services/app_callables_super.dart';
 
 import 'app_drawer.dart';
 
 class AppFrame extends StatelessWidget {
   final Function()? action;
   final bool showBackButton;
-  final AppCallablesSuper appCallables;
   final bool showAppMenu;
 
   const AppFrame({
@@ -16,7 +14,6 @@ class AppFrame extends StatelessWidget {
     this.floatingActionButton,
     this.action,
     this.showBackButton = false,
-    required this.appCallables,
     this.showAppMenu = true,
   });
 
@@ -50,7 +47,7 @@ class AppFrame extends StatelessWidget {
                 height: 32,
               ),
       ),
-      drawer: showAppMenu ? AppDrawer(appCallables: appCallables) : null,
+      drawer: showAppMenu ? AppDrawer() : null,
       body: body,
       floatingActionButton: floatingActionButton,
     );

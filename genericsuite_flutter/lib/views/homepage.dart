@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../services/app_callables_super.dart';
 import '../services/current_user_service.dart';
 import '../services/message_service.dart';
 import '../services/utilities.dart';
@@ -15,15 +14,8 @@ typedef AlternateWidgetBuilder = Widget Function();
 
 class HomePage extends StatefulWidget {
   final HomePageBodyBuilder homePageBodyBuilder;
-  final AlternateWidgetBuilder alternateWidgetBuilder;
-  final AppCallablesSuper appCallables;
 
-  const HomePage(
-    this.homePageBodyBuilder,
-    this.alternateWidgetBuilder,
-    this.appCallables, {
-    super.key,
-  });
+  const HomePage({super.key, required this.homePageBodyBuilder});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -38,8 +30,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      showScaffoldMessages(context, widget.appCallables);
+      showScaffoldMessages(context);
     });
   }
 
@@ -52,25 +45,22 @@ class _HomePageState extends State<HomePage> {
   void didUpdateWidget(covariant HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      showScaffoldMessages(context, widget.appCallables);
+      showScaffoldMessages(context);
     });
   }
 
-  void showScaffoldMessages(
-    BuildContext context,
-    AppCallablesSuper appCallables,
-  ) {
+  void showScaffoldMessages(BuildContext context) {
     if (debug) {
       logDebug(
         'HomePage | showScaffoldMessages | errorMessage: $errorMessage | infoMessage: $infoMessage',
       );
     }
     if (errorMessage.isNotEmpty) {
-      showScaffoldMessage(errorMessage, context, typeError, appCallables);
+      showScaffoldMessage(errorMessage, context, typeError);
       errorMessage = "";
     }
     if (infoMessage.isNotEmpty) {
-      showScaffoldMessage(infoMessage, context, typeInfo, appCallables);
+      showScaffoldMessage(infoMessage, context, typeInfo);
       infoMessage = "";
     }
   }
@@ -101,9 +91,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildHomePage(BuildContext context) {
-    // const title = "Dashboard";
     return AppFrame(
-      appCallables: widget.appCallables,
       body: Center(
         child: FutureBuilder(
           future: loadHomeData(true),

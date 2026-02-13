@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'redirect_service.dart';
 import 'theme_config_defaults.dart';
 
 class AppCallablesSuper {
@@ -27,13 +28,93 @@ class AppCallablesSuper {
   }
 
   /*
-   * Get the menu callables and other options
+   * Get the app info
    */
-  Map<String, dynamic> getMenuCallables() {
+  Map<String, dynamic> getAppInfo() {
+    // Example:
+    // return {
+    //   "name": "GS Mobile app"
+    //   "description": "GenericSuite Mobile app"
+    //   "version": "1.0.0"
+    //   "build": "1"
+    // };
     throw UnimplementedError();
   }
 
+  /*
+   * Get the menu callables and other options
+   */
+  Map<String, dynamic> getMenuCallables() {
+    // Example:
+    // return {"HomePage": {"widget": () => HomePage((d) => HomePageBody(d, this), () => AnyOtherWidget(), this), "icon": Icons.dashboard,"args": {}}},
+    throw UnimplementedError();
+  }
+
+  /*
+   * Get the main screen elements
+   */
+  Map<String, dynamic> getMainScreenElements() {
+    // Example:
+    // return {
+    //   "mainScreen": () => HomePage((userData) => HomePageBody(userData, this)),
+    //   "alternateScreen": () => AnyOtherWidget(),
+    //   "redirect": false, // or true to redirect to alternate screen
+    //   "icon": Icons.dashboard,
+    //   "args": {},
+    // };
+    return {
+      "mainScreen": (userData) => Text('Main Screen\n$userData'),
+      "alternateScreen": () => Text('Alternate Screen'),
+      "icon": Icons.dashboard,
+      "redirect": false, // or true to redirect to alternate screen
+      "args": {},
+    };
+  }
+
+  /*
+   * Get the getMainScreen widget
+   */
+  Widget mainScreenWidget() {
+    // Example:
+    // return getMainScreen(
+    //   (userData) => HomePageBody(userData, this),
+    //   () => AnyOtherWidget(),
+    //   false, // or true to redirect to alternate screen
+    // );
+    Map<String, dynamic> elements = getMainScreenElements();
+    return getMainScreen(
+      elements['mainScreen'],
+      elements['alternateScreen'],
+      elements['redirect'],
+    );
+  }
+
+  /*
+   * Run redirectMainScreen
+   */
+  void runRedirectMainScreen(BuildContext context) {
+    // Example:
+    // redirectMainScreen(
+    //   context,
+    //   (userData) => HomePageBody(userData),
+    //   () => AnyOtherWidget(),
+    //   false, // or true to redirect to alternate screen
+    // );
+    Map<String, dynamic> elements = getMainScreenElements();
+    redirectMainScreen(
+      context,
+      elements['mainScreen'],
+      elements['alternateScreen'],
+      elements['redirect'],
+    );
+  }
+
+  /*
+   * Get the user management related callbacks
+   */
   Map<String, dynamic> getUserCallbacks(BuildContext context) {
-    return {'specificFunctions': {}, "components": {}, "childComponents": {}};
+    // Example:
+    // return {'specificFunctions': {}, "components": {}, "childComponents": {}};
+    throw UnimplementedError();
   }
 }

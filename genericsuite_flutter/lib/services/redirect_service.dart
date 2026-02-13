@@ -1,43 +1,41 @@
 import 'package:flutter/material.dart';
 
 import '../views/homepage.dart';
-import 'app_callables_super.dart';
 import 'utilities.dart';
 
-const redirectToCrud = false;
 const rdSvDebug = false;
 
 Widget getMainScreen(
   HomePageBodyBuilder homePageBodyBuilder,
-  AlternateWidgetBuilder alternateWidgetBuilder,
-  AppCallablesSuper appCallables,
-) {
-  if (redirectToCrud) {
+  AlternateWidgetBuilder alternateWidgetBuilder, [
+  bool? redirectToAlternateWidget = false,
+]) {
+  if (redirectToAlternateWidget == true) {
     if (rdSvDebug) {
-      logDebug('>>>> Redirect to CRUD...');
+      logDebug('>>>> Redirect to Alternate Widget...');
     }
     return alternateWidgetBuilder();
   } else {
     if (rdSvDebug) {
       logDebug('>>>> Redirect to HomePage...');
     }
-    return HomePage(homePageBodyBuilder, alternateWidgetBuilder, appCallables);
+    return HomePage(homePageBodyBuilder: homePageBodyBuilder);
   }
 }
 
 void redirectMainScreen(
   BuildContext context,
   HomePageBodyBuilder homePageBodyBuilder,
-  AlternateWidgetBuilder alternateBodyBuilder,
-  AppCallablesSuper appCallables,
-) {
+  AlternateWidgetBuilder alternateBodyBuilder, [
+  bool? redirectToAlternateWidget = false,
+]) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => getMainScreen(
         homePageBodyBuilder,
         alternateBodyBuilder,
-        appCallables,
+        redirectToAlternateWidget,
       ),
     ),
   );

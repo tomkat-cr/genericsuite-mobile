@@ -8,9 +8,7 @@ import '../services/crud_editor.dart';
 import '../services/http_service.dart';
 import '../services/locator_service.dart';
 import '../services/message_service.dart';
-import '../services/redirect_service.dart';
 import '../services/utilities.dart';
-import 'homepage.dart';
 
 const loginDebug = false;
 
@@ -19,18 +17,9 @@ const invalidCredsErrorMessage =
     "No account was found matching that username and password";
 
 class LoginPage extends StatefulWidget {
-  final HomePageBodyBuilder homePageBodyBuilder;
-  final AlternateWidgetBuilder alternateWidgetBuilder;
-  final AppCallablesSuper appCallables;
   final Map<String, dynamic>? params;
 
-  const LoginPage(
-    this.homePageBodyBuilder,
-    this.alternateWidgetBuilder,
-    this.appCallables, {
-    super.key,
-    this.params,
-  });
+  const LoginPage({super.key, this.params});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -45,6 +34,9 @@ class _LoginPageState extends State<LoginPage> {
   String errorMessage = '';
   String errorCode = '';
   int apiStatusCode = 0;
+  // late HomePageBodyBuilder homePageBodyBuilder;
+  // late AlternateWidgetBuilder alternateWidgetBuilder;
+  late AppCallablesSuper appCallables;
 
   void _initMessages() {
     setState(() {
@@ -100,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
     scheduleMessagesBindings(context, {
       'errorMessage': errorMessage,
       'errorCode': showErrorCodes ? errorCode : '',
-    }, widget.appCallables);
+    });
     errorMessage = "";
     errorCode = "";
   }
@@ -163,12 +155,12 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (context.mounted) {
-        redirectMainScreen(
-          context,
-          widget.homePageBodyBuilder,
-          widget.alternateWidgetBuilder,
-          widget.appCallables,
-        );
+        // redirectMainScreen(
+        //   context,
+        //   homePageBodyBuilder,
+        //   alternateWidgetBuilder,
+        // );
+        appCallables.runRedirectMainScreen(context);
       }
     } else {
       if (!context.mounted) return;
@@ -183,9 +175,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _processSignUp(BuildContext context) async {
     _initMessages();
-    Map<String, dynamic> callbacks = widget.appCallables.getUserCallbacks(
-      context,
-    );
+    Map<String, dynamic> callbacks = appCallables.getUserCallbacks(context);
     Map<String, dynamic> props = {
       'isCreation': true,
       'showAppMenu': false,
@@ -199,7 +189,6 @@ class _LoginPageState extends State<LoginPage> {
       MaterialPageRoute(
         builder: (context) => CrudEditor(
           jsonFileName: 'onboarding_users.json',
-          appCallables: widget.appCallables,
           callbacks: callbacks,
           props: props,
           backButtonAction: () {
@@ -277,19 +266,31 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+
+    appCallables = appCallablesLocator.get<AppCallablesSuper>();
+    Map<String, dynamic> appInfo = appCallables.getAppInfo();
+
+    // homePageBodyBuilder = homePageBodyBuilderLocator.get<WidgetBuilder>();
+    // alternateWidgetBuilder = alternateWidgetBuilderLocator.get<WidgetBuilder>();
+
     if (widget.params != null) {
       if (widget.params!.containsKey('onboardingMessage')) {
         onboardingMessage = widget.params!['onboardingMessage'];
+      } else {
+        onboardingMessage = "Welcome to ${appInfo['name']}";
       }
+
       if (widget.params!.containsKey('errorMessage')) {
         errorMessage = widget.params!['errorMessage'];
       }
       if (widget.params!.containsKey('errorCode')) {
         errorCode = widget.params!['errorCode'];
       }
+
       if (widget.params!.containsKey('apiStatusCode')) {
         apiStatusCode = widget.params!['apiStatusCode'];
       }
+
       if (errorMessage.isNotEmpty) {
         _scheduleBindings();
       }

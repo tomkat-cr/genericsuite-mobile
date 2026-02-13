@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:genericsuite/services/app_callables_super.dart';
 
+import '../services/app_callables_super.dart';
 import '../services/http_service.dart';
+import '../services/locator_service.dart';
 import '../services/message_service.dart';
-// import '../services/theme_config.dart';
+import '../services/routing_services.dart';
 import '../services/utilities.dart';
 
 const apDrwDebug = false;
@@ -14,9 +15,7 @@ const acceptedUserGroups = ['users'];
 const defaultUserGroup = 'users';
 
 class AppDrawer extends StatefulWidget {
-  final AppCallablesSuper appCallables;
-
-  const AppDrawer({super.key, required this.appCallables});
+  const AppDrawer({super.key});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -32,6 +31,8 @@ class _AppDrawerState extends State<AppDrawer> {
   Map<String, dynamic> configItems = {};
   String apiBaseUrl = '';
   List<Map<String, dynamic>> menuConfig = [];
+  final AppCallablesSuper appCallables = appCallablesLocator
+      .get<AppCallablesSuper>();
 
   /*
    * Schedule bindings, to show error and info messages after the widget is built
@@ -41,7 +42,7 @@ class _AppDrawerState extends State<AppDrawer> {
       'errorMessage': errorMessage,
       'errorCode': errorCode,
       'infoMessage': infoMessage,
-    }, widget.appCallables);
+    });
     errorMessage = "";
     errorCode = "";
     infoMessage = "";
@@ -108,7 +109,7 @@ class _AppDrawerState extends State<AppDrawer> {
    * - Get the menu items from the JSON config file
    */
   Future<bool> _loadConfig() async {
-    Map<String, dynamic> callables = widget.appCallables.getMenuCallables();
+    Map<String, dynamic> callables = appCallables.getMenuCallables();
     if (apDrwDebug) {
       logDebug('Drawer | 1) loadconfig...');
     }
@@ -264,7 +265,7 @@ class _AppDrawerState extends State<AppDrawer> {
     menuItems.add(
       DrawerHeader(
         decoration: BoxDecoration(
-          color: widget.appCallables.getThemeParams()['drawerBackgroundColor'],
+          color: appCallables.getThemeParams()['drawerBackgroundColor'],
         ),
         child: Image.asset(
           'assets/images/app_logo_circle.png',
@@ -284,24 +285,10 @@ class _AppDrawerState extends State<AppDrawer> {
               : Icon(item['callable']['icon']),
           title: Text(item['title']),
           onTap: () {
-            if (item['type'] == 'widget' &&
-                (item['callable']['widget'] != null ||
-                    item['callable']['function'] != null)) {
-              Navigator.pop(context); // Close the drawer
-              if (item['callable']['function'] != null) {
-                item['callable']['function'](context);
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => item['callable']['widget'](),
-                  ),
-                );
-              }
-            } else {
-              errorMessage = "${item['title']} is not implemented";
-              errorCode = "AD-E020";
-              Navigator.pop(context); // Close the drawer
+            Map<String, dynamic> result = routeItem(item, context);
+            if (result['errorMessage'].isNotEmpty) {
+              errorMessage = result['errorMessage'];
+              errorCode = result['errorCode'];
               _setStateAndShowMessages();
             }
           },
