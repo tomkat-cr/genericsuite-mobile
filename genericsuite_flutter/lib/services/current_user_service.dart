@@ -30,7 +30,7 @@ String getBestApiKey(List<dynamic> userDataApiKeys) {
 }
 
 Future<Map<String, dynamic>> getCurrentUserData() {
-  FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+  FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
 
   return loadConfig().then((configStr) {
     Map<String, dynamic> config = json.decode(configStr);

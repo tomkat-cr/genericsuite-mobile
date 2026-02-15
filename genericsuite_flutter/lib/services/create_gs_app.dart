@@ -52,8 +52,8 @@ class CreateGsAppState extends State<CreateGsApp> {
   void initState() {
     super.initState();
 
-    setupStorageLocator();
-    storage = locator<FlutterSecureStorage>();
+    setupStorageLocator(widget.appCallables.getStorage());
+    storage = storageLocator<FlutterSecureStorage>();
 
     setupAppCallablesLocator(widget.appCallables);
     appCallables = appCallablesLocator.get<AppCallablesSuper>();

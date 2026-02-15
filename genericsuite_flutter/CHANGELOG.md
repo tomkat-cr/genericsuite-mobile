@@ -18,6 +18,16 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.4.0] - 2026-02-14
+
+### Added
+- Add `devtools_options.yaml` to the project [GS-261].
+
+### Changed
+- Rename `locator` to `storageLocator` for `FlutterSecureStorage` access [GS-261].
+- Update widget key syntax on autocomplete_service.dart and form_field_service.dart [GS-261].
+
+
 ## [0.3.1] - 2026-02-13
 
 ### Fixed

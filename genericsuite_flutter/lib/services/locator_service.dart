@@ -3,15 +3,15 @@ import 'package:get_it/get_it.dart';
 
 import 'app_callables_super.dart';
 
-final GetIt locator = GetIt.instance;
+final GetIt storageLocator = GetIt.instance;
 
-void setupStorageLocator() {
+void setupStorageLocator([FlutterSecureStorage? storage]) {
   // Register a lazy singleton (created only when first used)
-  locator.registerLazySingleton(() => FlutterSecureStorage());
+  storageLocator.registerLazySingleton(() => storage ?? FlutterSecureStorage());
 }
 
 /*
-// Access it anywhere in your app where storage is needed to .read() or .write()
+// Access storage anywhere in your app where storage is needed to .read() or .write()
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:genericsuite/services/locator_service.dart';
@@ -22,7 +22,6 @@ final storage = locator<FlutterSecureStorage>();
 final GetIt appCallablesLocator = GetIt.instance;
 
 void setupAppCallablesLocator(AppCallablesSuper appCallables) {
-  // Register a lazy singleton (created only when first used)
   appCallablesLocator.registerLazySingleton(() => appCallables);
 }
 

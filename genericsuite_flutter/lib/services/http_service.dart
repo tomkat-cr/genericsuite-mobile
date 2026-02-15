@@ -245,7 +245,7 @@ Map<String, dynamic> getJwtPayload(String jwtTokenRaw) {
 }
 
 Future<String> loadConfig() async {
-  final storage = locator<FlutterSecureStorage>();
+  final storage = storageLocator<FlutterSecureStorage>();
   String jwtToken = '';
   Map<String, dynamic> configItems = {};
   return storage.read(key: 'jwt').then((jwtTokenValue) {

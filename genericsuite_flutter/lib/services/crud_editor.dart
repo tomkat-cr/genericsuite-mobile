@@ -36,7 +36,7 @@ class CrudEditor extends StatefulWidget {
 }
 
 class CrudEditorState extends State<CrudEditor> {
-  final FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+  final FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
 
   String userId = '';
   Map<String, dynamic> currentUserData = {};

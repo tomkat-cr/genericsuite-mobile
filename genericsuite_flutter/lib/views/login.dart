@@ -26,7 +26,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+  final FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -37,6 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   // late HomePageBodyBuilder homePageBodyBuilder;
   // late AlternateWidgetBuilder alternateWidgetBuilder;
   late AppCallablesSuper appCallables;
+  String newUserJsonFileName = 'onboarding_users.json';
 
   void _initMessages() {
     setState(() {
@@ -188,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
       context,
       MaterialPageRoute(
         builder: (context) => CrudEditor(
-          jsonFileName: 'onboarding_users.json',
+          jsonFileName: newUserJsonFileName,
           callbacks: callbacks,
           props: props,
           backButtonAction: () {
@@ -289,6 +290,10 @@ class _LoginPageState extends State<LoginPage> {
 
       if (widget.params!.containsKey('apiStatusCode')) {
         apiStatusCode = widget.params!['apiStatusCode'];
+      }
+
+      if (widget.params!.containsKey('newUserJsonFileName')) {
+        newUserJsonFileName = widget.params!['newUserJsonFileName'];
       }
 
       if (errorMessage.isNotEmpty) {

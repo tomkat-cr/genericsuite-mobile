@@ -8,7 +8,7 @@ import 'locator_service.dart';
   * Logout
   */
 void logOut(BuildContext context) {
-  FlutterSecureStorage storage = locator<FlutterSecureStorage>();
+  FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
 
   // Delete user data to let the login page use the new user data
   storage.delete(key: "jwt");

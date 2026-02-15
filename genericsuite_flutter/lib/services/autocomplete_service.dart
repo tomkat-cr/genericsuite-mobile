@@ -222,8 +222,8 @@ class SuggestionDropdown extends StatefulWidget {
     required this.value,
     required this.onSelected,
     required this.setError,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<SuggestionDropdown> createState() => SuggestionDropdownState();

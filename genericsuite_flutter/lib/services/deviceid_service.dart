@@ -9,7 +9,7 @@ import 'locator_service.dart';
 
 class DeviceIdService {
   static const _storageKey = 'app_device_id';
-  static final _storage = locator<FlutterSecureStorage>();
+  static final _storage = storageLocator<FlutterSecureStorage>();
   static final _deviceInfo = DeviceInfoPlugin();
   static final _uuid = Uuid();
 

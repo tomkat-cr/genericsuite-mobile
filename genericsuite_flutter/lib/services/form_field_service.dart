@@ -16,11 +16,11 @@ class ScrollableTextField extends StatefulWidget {
   final Function onSaved;
 
   const ScrollableTextField({
-    Key? key,
+    super.key,
     required this.config,
     required this.value,
     required this.onSaved,
-  }) : super(key: key);
+  });
 
   @override
   State<ScrollableTextField> createState() => _ScrollableTextFieldState();
@@ -88,11 +88,11 @@ class PasswordField extends StatefulWidget {
   final Function onSaved;
 
   const PasswordField({
-    Key? key,
+    super.key,
     required this.config,
     required this.value,
     required this.onSaved,
-  }) : super(key: key);
+  });
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
@@ -168,7 +168,7 @@ class DataFormBody extends StatefulWidget {
   final Map<String, dynamic>? props;
 
   const DataFormBody({
-    Key? key,
+    super.key,
     required this.editorConfig,
     required this.constants,
     required this.selectedItem,
@@ -179,7 +179,7 @@ class DataFormBody extends StatefulWidget {
     required this.setEditMode,
     required this.setError,
     this.props = const {},
-  }) : super(key: key);
+  });
 
   @override
   State<DataFormBody> createState() => _DataFormBodyState();
@@ -469,7 +469,7 @@ class _DataFormBodyState extends State<DataFormBody> {
               DropdownButtonFormField<String>(
                 key: ValueKey(fieldName),
                 isExpanded: true,
-                value: fieldElementValue,
+                initialValue: fieldElementValue,
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                   // border: const OutlineInputBorder(),
@@ -507,7 +507,7 @@ class _DataFormBodyState extends State<DataFormBody> {
             formFields.add(
               DropdownButtonFormField<String>(
                 key: ValueKey(fieldName),
-                value: fieldElementValue,
+                initialValue: fieldElementValue,
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                   // border: const OutlineInputBorder(),
