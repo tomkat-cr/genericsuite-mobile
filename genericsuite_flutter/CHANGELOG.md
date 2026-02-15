@@ -18,10 +18,17 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Removed
 
 
+## [0.4.1] - 2026-02-15
+
+### Added
+- Implement `getStorage` method in `AppCallablesSuper` to provide a customizable `FlutterSecureStorage` instance [GS-261].
+
+
 ## [0.4.0] - 2026-02-14
 
 ### Added
 - Add `devtools_options.yaml` to the project [GS-261].
+- Add `newUserJsonFileName` parameter in `login.dart` "params" map so the "onboarding_users.json" configuration can be customized [GS-261].
 
 ### Changed
 - Rename `locator` to `storageLocator` for `FlutterSecureStorage` access [GS-261].

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'redirect_service.dart';
 import 'theme_config_defaults.dart';
@@ -25,6 +26,21 @@ class AppCallablesSuper {
       'successForegroundColor': successForegroundColor,
       'closeButtonPlacement': closeButtonPlacement,
     };
+  }
+
+  /*
+   * Get the storage. This can be overridden in the app callables
+   * to provide a custom storage implementation. E.g.
+   * // Strict biometric enforcement
+   * final storage = FlutterSecureStorage(
+   *   aOptions: AndroidOptions.biometric(
+   *     enforceBiometrics: true, // Requires biometric/PIN
+   *     biometricPromptTitle: 'Authentication Required',
+   *   ),
+   * );
+   */
+  FlutterSecureStorage getStorage() {
+    return FlutterSecureStorage();
   }
 
   /*
