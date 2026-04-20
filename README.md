@@ -123,6 +123,7 @@ Check the [Flutter/Dart version of GenericSuite package](./genericsuite/README.m
 ## Documentation
 
 * [https://genericsuite.carlosjramirez.com](https://genericsuite.carlosjramirez.com)
+* Mirror: [https://genericsuite.readthedocs.io](https://genericsuite.readthedocs.io)
 
 ## License
 

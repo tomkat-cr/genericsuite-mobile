@@ -634,7 +634,7 @@ class AppCallables extends AppCallablesSuper {
 }
 ```
 
-### lib/domain/fynapp_crud_editor_sf_users.dart
+### lib/domain/exampleapp_crud_editor_sf_users.dart
 
 This file contains the "specific functions" that are called when a user is created or updated in the database.
 
