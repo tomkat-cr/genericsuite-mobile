@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 
 ### Change
 - Minor fixes on README.md files
+- License changed to MIT [FA-244].
 
 
 ## [0.3.1] - 2026-02-13

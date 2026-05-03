@@ -1547,7 +1547,7 @@ from the package authors, and more.
 
 ## License
 
-[GenericSuite](https://genericsuite.carlosjramirez.com) is open-sourced software licensed under the ISC license.
+[GenericSuite](https://genericsuite.carlosjramirez.com) is open-sourced software licensed under the MIT license.
 
 ## Credits
 

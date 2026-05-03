@@ -127,7 +127,7 @@ Check the [Flutter/Dart version of GenericSuite package](./genericsuite/README.m
 
 ## License
 
-[GenericSuite](https://genericsuite.carlosjramirez.com) is open-sourced software licensed under the ISC license.
+[GenericSuite](https://genericsuite.carlosjramirez.com) is open-sourced software licensed under the [MIT license](./LICENSE).
 
 ## Credits
 
