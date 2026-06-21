@@ -4,10 +4,11 @@ import 'package:network_info_plus/network_info_plus.dart';
 Future<String?> getPublicIpAddress() async {
   try {
     const url = 'https://api.ipify.org';
-    var response = await http.get(Uri.parse(url));
+    var response = await http.get(Uri.parse(url)).timeout(
+      const Duration(seconds: 5),
+    );
 
     if (response.statusCode == 200) {
-      // The response body is the public IP in plain text
       return response.body;
     } else {
       print('Failed to get public IP. Status code: ${response.statusCode}');
@@ -21,7 +22,11 @@ Future<String?> getPublicIpAddress() async {
 
 
 Future<String?> getLocalIpAddress() async {
-  final info = NetworkInfo();
-  var wifiIP = await info.getWifiIP();
-  return wifiIP;
+  try {
+    final info = NetworkInfo();
+    var wifiIP = await info.getWifiIP();
+    return wifiIP;
+  } catch (e) {
+    return null;
+  }
 }

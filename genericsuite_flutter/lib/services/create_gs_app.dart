@@ -78,6 +78,9 @@ class CreateGsAppState extends State<CreateGsApp> {
       home: FutureBuilder(
         future: initEnvironmentAndGetJwt,
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return LoginPage(params: loginInitialParams);
+          }
           if (!snapshot.hasData) return const CircularProgressIndicator();
 
           if (createGsAppDebug) {

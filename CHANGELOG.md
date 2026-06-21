@@ -27,6 +27,10 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Change
 - Minor fixes on README.md files
 - License changed to MIT [FA-244].
+- Update .gitignore to include AI agent directories [GS-303].
+
+### Fixes
+- Improve error handling in create_gs_app.dart and ip_address_service.dart for better stability and fix Flutter web deployment to bootstrap [GS-252].
 
 
 ## [0.3.1] - 2026-02-13
