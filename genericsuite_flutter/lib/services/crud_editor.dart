@@ -1036,7 +1036,7 @@ class CrudEditorState extends State<CrudEditor> {
           'CRUD | _loadItems | ERROR / localApiResp: ${localApiResp.toString()}',
         );
       }
-      errorMessage = localApiResp['error_message'];
+      errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-LI-E020";
       if (gceMainDebug) {
         logDebug(
@@ -1175,7 +1175,7 @@ class CrudEditorState extends State<CrudEditor> {
       getParams,
     );
     if (localApiResp['error']) {
-      errorMessage = localApiResp['error_message'];
+      errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-LSI-E020";
       if (gceMainDebug) {
         logDebug(
@@ -1240,6 +1240,17 @@ class CrudEditorState extends State<CrudEditor> {
     isEditMode = true;
 
     return itemData;
+  }
+
+  String _getErrorMessageAndDetailFromApiResponse(
+    Map<String, dynamic> localApiResp,
+  ) {
+    String errorMessage = localApiResp['error_message'] ?? '';
+    String errorDetail = localApiResp['error_detail'] ?? '';
+    if (errorDetail.isNotEmpty) {
+      errorMessage = "$errorMessage\n$errorDetail";
+    }
+    return errorMessage;
   }
 
   /*
@@ -1326,7 +1337,7 @@ class CrudEditorState extends State<CrudEditor> {
     }
     if (localApiResp['error']) {
       items = originalItems;
-      errorMessage = localApiResp['error_message'];
+      errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-SI-E030";
       await logError(
         'CRUD | _saveItem | ERROR / localApiResp: $localApiResp',
@@ -1449,7 +1460,7 @@ class CrudEditorState extends State<CrudEditor> {
       getParams,
     );
     if (localApiResp['error']) {
-      errorMessage = localApiResp['error_message'];
+      errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-DI-E020";
       _setStateAndShowMessages();
       return;

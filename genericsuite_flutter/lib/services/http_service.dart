@@ -189,6 +189,7 @@ class HttpUtilities {
         result = {
           "error": true,
           "error_message": getApiErrorMessage('serverError'),
+          "error_detail": errorMessage,
           "status_code": response.statusCode,
           "resultset": {},
         };
