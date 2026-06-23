@@ -242,7 +242,7 @@ class _DataFormBodyState extends State<DataFormBody> {
       bool required = fieldElement['required'] ?? false;
       bool readOnly = fieldElement['readonly'] ?? false;
       bool hidden = fieldElement['hidden'] ?? false;
-      String defaultValue = fieldElement['default_value'] ?? '';
+      String defaultValue = (fieldElement['default_value'] ?? '').toString();
       String fieldName = fieldElement['name'];
       String fieldElementValue = getValueToEdit(
         widget.selectedItem[fieldName],
