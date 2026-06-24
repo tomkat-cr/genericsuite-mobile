@@ -23,6 +23,7 @@ export 'services/message_service.dart';
 export 'services/redirect_service.dart';
 export 'services/routing_services.dart';
 export 'services/select_options_service.dart';
+export 'services/platform_service.dart';
 export 'services/theme_config_defaults.dart';
 export 'services/timestamp_utilities.dart';
 export 'services/utilities.dart';

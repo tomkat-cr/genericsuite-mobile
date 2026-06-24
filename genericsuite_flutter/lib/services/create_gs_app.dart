@@ -7,6 +7,7 @@ import 'package:genericsuite/services/config_service.dart';
 import 'package:genericsuite/services/deviceid_service.dart';
 import 'package:genericsuite/services/http_service.dart';
 import 'package:genericsuite/services/ip_address_service.dart';
+import 'package:genericsuite/services/platform_service.dart';
 import 'package:genericsuite/services/locator_service.dart';
 import 'package:genericsuite/services/utilities.dart';
 import 'package:genericsuite/views/login.dart';
@@ -36,12 +37,14 @@ class CreateGsAppState extends State<CreateGsApp> {
   late String? deviceId;
   late String? ipLocal;
   late String? ipPublic;
+  late Map<String, String> platformInfo;
 
   Future<String> get initEnvironmentAndGetJwt async {
     configItems = await ConfigService.getConfigItems();
     deviceId = await DeviceIdService.getDeviceId();
     ipLocal = await getLocalIpAddress();
     ipPublic = await getPublicIpAddress();
+    platformInfo = getPlatformInfo();
 
     var jwt = await storage.read(key: "jwt");
     if (jwt == null) return "";
@@ -90,6 +93,7 @@ class CreateGsAppState extends State<CreateGsApp> {
           configItems['deviceId'] = deviceId;
           configItems['ipLocal'] = ipLocal;
           configItems['ipPublic'] = ipPublic;
+          configItems['platformInfo'] = platformInfo;
 
           storage.write(key: "configItems", value: json.encode(configItems));
 
