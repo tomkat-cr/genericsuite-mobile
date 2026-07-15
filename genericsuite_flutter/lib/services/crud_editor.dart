@@ -112,8 +112,15 @@ class CrudEditorState extends State<CrudEditor> {
       }
       if (currentObj['type'] == 'select_table' &&
           currentObj['related_table'] != null) {
+        // Include related_key and related_filter in the cache key so two
+        // select_table fields sharing a related_table but differing in
+        // related_key/related_filter don't collide on the same cached
+        // rows (see genericsuite-fe useRelatedTableRows for the matching
+        // fix on the frontend side).
         final String selectName =
-            'select_table_${currentObj['related_table']}';
+            'select_table_${currentObj['related_table']}_'
+            '${currentObj['related_key'] ?? '_id'}_'
+            '${jsonEncode(currentObj['related_filter'] ?? {})}';
         await genericSelectGenerator(
           dbApiUrl: currentObj['related_table'],
           selectName: selectName,
