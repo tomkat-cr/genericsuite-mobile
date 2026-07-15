@@ -38,6 +38,31 @@ String buildDescription(Map<String, dynamic> option, List<dynamic> fieldArray) {
   return description.trim();
 }
 
+/// Builds an id -> description map from related-table rows for a
+/// select_table field, honoring description_fields / separator /
+/// related_key attributes.
+Map<String, dynamic> buildSelectTableDescriptionMap(
+  List<dynamic> rows,
+  Map<String, dynamic> currentObj,
+) {
+  final String relatedKey = currentObj['related_key'] ?? '_id';
+  final List<dynamic> descriptionFields =
+      currentObj['description_fields'] ?? const ['name'];
+  final String separator = currentObj['description_separator'] ?? ' ';
+  final Map<String, dynamic> result = {};
+  for (var row in rows) {
+    final key = row[relatedKey]?.toString();
+    if (key == null) {
+      continue;
+    }
+    result[key] = descriptionFields
+        .map((field) => row[field])
+        .where((value) => value != null)
+        .join(separator);
+  }
+  return result;
+}
+
 /// Generic select generator that mimics the React version
 Future<dynamic> genericSelectGenerator({
   required String dbApiUrl,
@@ -170,6 +195,20 @@ dynamic getSelectDescription({
 
   String fieldName = currentObj['name'];
   dynamic value = dbRow[fieldName];
+
+  // Related table select (1-1 relationship)
+  if (currentObj['type'] == 'select_table') {
+    final descAttr = '${fieldName}_description';
+    if (dbRow[descAttr] != null) {
+      return dbRow[descAttr];
+    }
+    if (value == null) {
+      return null;
+    }
+    final Map<String, dynamic>? optionsMap =
+        selectFieldsOptionsPromises[fieldName]?['promiseResult'];
+    return optionsMap?[value.toString()];
+  }
 
   // Generic select (from constants)
   if (currentObj['type'] == 'select') {
