@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:genericsuite/services/crud_editor_commons.dart';
+import 'package:genericsuite/services/crud_editor_selector.dart';
 import 'package:genericsuite/services/crud_editor_sf_filters.dart';
 import 'package:genericsuite/services/crud_editor_sf_timestamps.dart';
 import 'package:genericsuite/services/crud_editor_sf_users.dart';
@@ -94,20 +95,47 @@ class CrudEditorState extends State<CrudEditor> {
   }
 
   /*
-   * Get the select fields options for field types 'select_component' 
-   * with dataPopulator attribute
+   * Get the select fields options for field types 'select_component'
+   * (with dataPopulator attribute) and 'select_table' (fetched from
+   * the related table's CRUD API, cached in SelectCache).
    */
-  Map<String, dynamic> _getSelectFieldsOptions() {
+  Future<Map<String, dynamic>> _getSelectFieldsOptions() async {
     Map<String, dynamic> response = {};
     for (var currentObj in editorConfig['fieldElements']) {
-      if (!(currentObj['type'] == 'select_component' &&
-          currentObj.containsKey('dataPopulator'))) {
+      if (currentObj['type'] == 'select_component' &&
+          currentObj.containsKey('dataPopulator')) {
+        response[currentObj['name']] = {
+          'promiseResult':
+              callbacks['dataPopulators'][currentObj['dataPopulator']],
+        };
         continue;
       }
-      response[currentObj['name']] = {
-        'promiseResult':
-            callbacks['dataPopulators'][currentObj['dataPopulator']],
-      };
+      if (currentObj['type'] == 'select_table' &&
+          currentObj['related_table'] != null) {
+        final String selectName =
+            'select_table_${currentObj['related_table']}';
+        await genericSelectGenerator(
+          dbApiUrl: currentObj['related_table'],
+          selectName: selectName,
+          dbFilter: currentObj['related_filter'] != null
+              ? Map<String, dynamic>.from(currentObj['related_filter'])
+              : null,
+          descriptionFields:
+              currentObj['description_fields'] ?? const ['name'],
+        );
+        // Use the raw cached rows (populated by genericSelectGenerator,
+        // whether from the API or from a previous cache hit) so both
+        // default and custom (related_key / description_separator)
+        // attributes are covered by a single code path. If the cache
+        // wasn't populated (e.g. an error occurred), fall back to {}.
+        final rawRows = SelectCache.get(selectName);
+        response[currentObj['name']] = {
+          'promiseResult': rawRows is List<dynamic>
+              ? buildSelectTableDescriptionMap(rawRows, currentObj)
+              : <String, dynamic>{},
+        };
+        continue;
+      }
     }
     return response;
   }
@@ -500,7 +528,8 @@ class CrudEditorState extends State<CrudEditor> {
     editorConfig['fieldElements'] = _getColumns();
 
     // Populate Select type Fields Options
-    editorConfig['selectFieldsOptionsPromises'] = _getSelectFieldsOptions();
+    editorConfig['selectFieldsOptionsPromises'] =
+        await _getSelectFieldsOptions();
 
     listingFieldElements = editorConfig['fieldElements'].where((field) {
       return field['listing'] == true;
@@ -1537,6 +1566,23 @@ class CrudEditorState extends State<CrudEditor> {
     return name;
   }
 
+  /*
+   * Client-side fallback for select_table listing descriptions when
+   * the backend didn't provide '{name}_description'.
+   */
+  String? _selectTableFallbackDescription(
+    String name,
+    Map<String, dynamic> item,
+  ) {
+    final options =
+        editorConfig['selectFieldsOptionsPromises']?[name]?['promiseResult'];
+    final value = item[name];
+    if (options == null || value == null) {
+      return null;
+    }
+    return options[value.toString()];
+  }
+
   String _buildListingLine(
     Map<String, dynamic> item,
     int colStart,
@@ -1544,7 +1590,14 @@ class CrudEditorState extends State<CrudEditor> {
   ) {
     String line = '';
     for (int i = colStart; i < colEnd + 1; i++) {
-      line += '${item[_getColumnName(i)]} ';
+      String name = _getColumnName(i);
+      if (i < listingFieldElements.length &&
+          listingFieldElements[i]['type'] == 'select_table') {
+        line += '${item['${name}_description'] ??
+            _selectTableFallbackDescription(name, item) ?? item[name]} ';
+      } else {
+        line += '${item[name]} ';
+      }
     }
     return line.trim();
   }
