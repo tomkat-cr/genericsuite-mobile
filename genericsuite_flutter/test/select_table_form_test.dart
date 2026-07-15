@@ -5,7 +5,7 @@ import 'package:genericsuite/services/form_field_service.dart';
 const String _actionRead = 'read';
 const String _actionUpdate = 'update';
 
-Widget _buildTestWidget({required bool readOnly}) {
+Widget _buildTestWidget({required bool readOnly, String fkValue = 'aaa'}) {
   final editorConfig = {
     'fieldElements': [
       {
@@ -22,7 +22,10 @@ Widget _buildTestWidget({required bool readOnly}) {
       },
     },
   };
-  final selectedItem = {'user_id': 'aaa', 'user_id_description': 'John Doe'};
+  final selectedItem = {
+    'user_id': fkValue,
+    'user_id_description': 'John Doe',
+  };
 
   return MaterialApp(
     home: Scaffold(
@@ -61,5 +64,20 @@ void main() {
     await tester.tap(find.byType(DropdownButtonFormField<String>));
     await tester.pumpAndSettle();
     expect(find.text('Jane Roe'), findsWidgets);
+  });
+
+  testWidgets(
+      'select_table edit mode does not throw when FK value is stale '
+      '(missing from prefetched options)', (tester) async {
+    // 'zzz' simulates a deleted related row or one excluded by
+    // related_filter: it is not a key in selectFieldsOptionsPromises, so
+    // DropdownButtonFormField's initialValue must not be set to it, or
+    // Flutter throws an assertion (initialValue must be one of the
+    // DropdownMenuItem values).
+    await tester.pumpWidget(_buildTestWidget(readOnly: false, fkValue: 'zzz'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
   });
 }

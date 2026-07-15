@@ -550,7 +550,9 @@ class _DataFormBodyState extends State<DataFormBody> {
               DropdownButtonFormField<String>(
                 key: ValueKey(fieldName),
                 isExpanded: true,
-                initialValue: fieldElementValue,
+                initialValue: selectElements.containsKey(fieldElementValue)
+                    ? fieldElementValue
+                    : null,
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                 ),
