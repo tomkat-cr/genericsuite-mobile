@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [Unreleased] - YYYY-MM-DD
 
 ### Added
+- `select_table` field type in the Flutter CRUD editor: listing and read-only form show the related record description (backend `{field}_description` with client-side cached fallback); create/edit renders a dropdown populated from the related table [GS-select-table].
 
 ### Changed
 
