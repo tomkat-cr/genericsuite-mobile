@@ -524,6 +524,48 @@ class _DataFormBodyState extends State<DataFormBody> {
           }
           break;
 
+        case 'select_table':
+          Map<String, dynamic> selectElements = Map<String, dynamic>.from(
+            widget.editorConfig['selectFieldsOptionsPromises']?[fieldName]
+                    ?['promiseResult'] ??
+                {},
+          );
+          if (readOnly) {
+            final String descAttr = '${fieldName}_description';
+            final String descriptionText =
+                widget.selectedItem[descAttr]?.toString() ??
+                    getSelectOptionLabel(selectElements, fieldElementValue);
+            formFields.add(
+              TextFormField(
+                key: ValueKey(fieldName),
+                controller: TextEditingController(text: descriptionText),
+                decoration: InputDecoration(
+                  labelText: fieldElement['label'],
+                ),
+                readOnly: true,
+              ),
+            );
+          } else {
+            formFields.add(
+              DropdownButtonFormField<String>(
+                key: ValueKey(fieldName),
+                isExpanded: true,
+                initialValue: fieldElementValue,
+                decoration: InputDecoration(
+                  labelText: fieldElement['label'],
+                ),
+                items: putSelectOptionsFromArray(
+                  selectElements: selectElements,
+                ),
+                onChanged: (value) {
+                  widget.selectedItem[fieldName] = value!;
+                },
+                onSaved: (value) => widget.selectedItem[fieldName] = value!,
+              ),
+            );
+          }
+          break;
+
         case 'component':
           Widget componentWidget;
           final componentCallbacks =
