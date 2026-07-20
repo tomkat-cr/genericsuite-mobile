@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:genericsuite/services/form_field_service.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 const String _actionRead = 'read';
 const String _actionUpdate = 'update';
@@ -27,19 +28,25 @@ Widget _buildTestWidget({required bool readOnly, String fkValue = 'aaa'}) {
     'user_id_description': 'John Doe',
   };
 
-  return MaterialApp(
-    home: Scaffold(
-      body: DataFormBody(
-        editorConfig: editorConfig,
-        constants: const {},
-        selectedItem: selectedItem,
-        callbacks: const {},
-        currentUserData: const {},
-        action: readOnly ? _actionRead : _actionUpdate,
-        saveItem: (Map<String, dynamic> item) {},
-        setEditMode: (bool newEditMode) {},
-        setError: (String message, String code, [int severity = 0]) {},
-        props: const {},
+  // ShadButton (used for the Save/Cancel actions) requires a ShadTheme
+  // ancestor, so the harness is wrapped in a minimal ShadApp.custom
+  // (mirrors CreateGsApp's own widget-tree root) instead of a bare
+  // MaterialApp.
+  return ShadApp.custom(
+    appBuilder: (context) => MaterialApp(
+      home: Scaffold(
+        body: DataFormBody(
+          editorConfig: editorConfig,
+          constants: const {},
+          selectedItem: selectedItem,
+          callbacks: const {},
+          currentUserData: const {},
+          action: readOnly ? _actionRead : _actionUpdate,
+          saveItem: (Map<String, dynamic> item) {},
+          setEditMode: (bool newEditMode) {},
+          setError: (String message, String code, [int severity = 0]) {},
+          props: const {},
+        ),
       ),
     ),
   );

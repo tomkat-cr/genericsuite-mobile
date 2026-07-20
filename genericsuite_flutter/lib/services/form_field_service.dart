@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 import 'autocomplete_service.dart';
 import 'crud_editor_child_components.dart';
@@ -691,7 +692,7 @@ class _DataFormBodyState extends State<DataFormBody> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
+            ShadButton(
               child: const Text('Save'),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
@@ -701,7 +702,7 @@ class _DataFormBodyState extends State<DataFormBody> {
               },
             ),
             const SizedBox(width: 20),
-            ElevatedButton(
+            ShadButton.outline(
               child: const Text('Cancel'),
               onPressed: () {
                 widget.setEditMode(false);
@@ -733,7 +734,7 @@ class _DataFormBodyState extends State<DataFormBody> {
       key: formKey,
       child: ListView(
         controller: ScrollController(),
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         children: formFields,
       ),
     );

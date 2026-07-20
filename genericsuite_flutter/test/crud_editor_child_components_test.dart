@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genericsuite/services/crud_editor_child_components.dart';
 import 'package:genericsuite/services/crud_editor_commons.dart';
 import 'package:genericsuite/services/form_field_service.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 void main() {
   testWidgets('renders one navigation card per registered child and pushes it '
@@ -112,18 +113,24 @@ void main() {
             }) => const Scaffold(body: Text('CHILD SCREEN')),
       },
     };
-    return MaterialApp(
-      home: Scaffold(
-        body: DataFormBody(
-          editorConfig: editorConfig,
-          constants: const {},
-          selectedItem: {'_id': 'USER1', 'firstname': 'Carlos'},
-          callbacks: callbacks,
-          currentUserData: const {},
-          action: action,
-          saveItem: (item) {},
-          setEditMode: (mode) {},
-          setError: (msg, code, [severity = 0]) {},
+    // ShadButton (used for the Save/Cancel actions) requires a ShadTheme
+    // ancestor, so the harness is wrapped in a minimal ShadApp.custom
+    // (mirrors CreateGsApp's own widget-tree root) instead of a bare
+    // MaterialApp.
+    return ShadApp.custom(
+      appBuilder: (context) => MaterialApp(
+        home: Scaffold(
+          body: DataFormBody(
+            editorConfig: editorConfig,
+            constants: const {},
+            selectedItem: {'_id': 'USER1', 'firstname': 'Carlos'},
+            callbacks: callbacks,
+            currentUserData: const {},
+            action: action,
+            saveItem: (item) {},
+            setEditMode: (mode) {},
+            setError: (msg, code, [severity = 0]) {},
+          ),
         ),
       ),
     );

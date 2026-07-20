@@ -40,7 +40,10 @@ class AppFrame extends StatelessWidget {
                 onPressed: backButtonAction,
               ),
         title: title != null
-            ? Text(title!)
+            ? Text(
+                title!,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              )
             : Image.asset(
                 'assets/images/app_logo_horizontal.png',
                 fit: BoxFit.contain,
