@@ -336,6 +336,44 @@ Here you can define the configuration to show the table data in a CRUD editor vi
 }
 ```
 
+### Child components (1-N relationships)
+
+When a frontend JSON config declares `"childComponents": ["SomeChild"]`, the
+CRUD editor renders one tappable section per child at the bottom of the edit
+form (edit mode only, never on creation). Tapping a section opens the child
+editor full-screen with the parent row passed as `parentData`.
+
+Each name must be registered in the `callbacks['childComponents']` map with a
+builder of type:
+
+```dart
+typedef ChildComponentBuilder = Widget Function({
+  required Map<String, dynamic> parentData,
+  Map<String, dynamic>? props,
+});
+```
+
+The builder normally returns a `CrudEditor` whose JSON config has
+`"type": "child_listing"`, a `"subType"` of `"array"` (child rows stored in an
+array attribute of the parent row, requires `"array_name"`) or `"table"`
+(child rows in their own table), and `"endpointKeyNames"` mapping the API
+parameter name to the parent's id field:
+
+```json
+{
+    "type": "child_listing",
+    "subType": "array",
+    "array_name": "food_times",
+    "endpointKeyNames": [
+        {"parameterName": "user_id", "parentElementName": "_id"}
+    ]
+}
+```
+
+Spread the received `props` into the `CrudEditor` `props` (they carry
+`isChildComponent: true` and `showAppMenu: false`, which enable the back
+button on the pushed screen) and add `'parentData': parentData`.
+
 ### lib/main.dart
 
 The `main.dart` file is the entry point of the app. It is where the app is initialized and the `ExampleApp` widget is created.
@@ -840,13 +878,15 @@ class ExampleappAnyOtherCrudEditorViewState extends State<ExampleappAnyOtherCrud
                 data, editorConfig, action, params, storage, context),
       },
       "childComponents": {
-        "ExampleappAnyOtherChildComponent": (
-          FlutterSecureStorage storage,
-          Map<String, dynamic> props,
-          String action,
-          Map<String, dynamic> params,
-        ) async =>
-            ExampleappAnyOtherChildComponent(storage, props, action, params),
+        "ExampleappAnyOtherChildComponent": ({
+          required Map<String, dynamic> parentData,
+          Map<String, dynamic>? props,
+        }) =>
+            CrudEditor(
+              jsonFileName: 'exampleapp_any_other_child_table.json',
+              callbacks: AppCallables().getUserCallbacks(context),
+              props: {...?props, 'parentData': parentData},
+            ),
       }
     };
     Map<String, dynamic> props = {};
