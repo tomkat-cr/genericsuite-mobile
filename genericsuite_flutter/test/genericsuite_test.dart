@@ -5,8 +5,8 @@ void main() {
   test('AppCallablesSuper class', () {
     final appCallablesInstance = AppCallablesSuper();
     expect(
-      appCallablesInstance.getThemeParams()['primarySwatch'] == primarySwatch,
-      3,
+      appCallablesInstance.getThemeParams()['primarySwatch'],
+      primarySwatch,
     );
   });
 }

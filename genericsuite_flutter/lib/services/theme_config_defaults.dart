@@ -1,24 +1,74 @@
 import 'package:flutter/material.dart';
 
-const primarySwatch = Colors.blue;
-const scaffoldBackgroundColor = Colors.white;
+// GenericSuite Mobile default theme tokens [GS-261].
+//
+// Design language: Apple-clean — white/neutral surfaces, near-black text,
+// ONE accent color, 12 px corner radius, iOS system semantic colors.
+// Typography intent: Inter (via google_fonts) for an SF-Pro-like feel.
+//
+// Consumer apps override AppCallablesSuper.getThemeParams(); CreateGsApp
+// merges that map OVER defaultThemeParams, so apps may return only the keys
+// they want to change.
 
-const appBarBackgroundColor = Colors.blue;
-const appBarForegroundColor = Colors.white;
+const MaterialColor accentColor = Colors.green;
+const double borderRadius = 12.0;
 
-const drawerBackgroundColor = appBarBackgroundColor;
-const drawerForegroundColor = appBarForegroundColor;
+// Typography tokens. 'Inter' triggers GoogleFonts.interTextTheme() in
+// CreateGsApp; any other family name is applied verbatim. An app can also
+// provide a full TextTheme via the 'textTheme' theme param (null = derive
+// from fontFamily).
+const String gsFontFamily = 'Inter';
 
-const errorBackgroundColor = Colors.red;
-const errorForegroundColor = Colors.white;
+const Color textColor = Color(0xFF111111); // near-black
+const Color secondaryTextColor = Color(0xFF6E6E73); // iOS secondary label
+const Color separatorColor = Color(0xFFD1D1D6); // iOS separator
+const Color neutralSurfaceColor = Color(0xFFF2F2F7); // iOS systemGray6
 
-const infoBackgroundColor = Colors.blue;
-const infoForegroundColor = Colors.white;
+// Legacy token, superseded by accentColor. Kept because existing apps
+// reference it in their getThemeParams() overrides.
+const MaterialColor primarySwatch = accentColor;
+const Color scaffoldBackgroundColor = Colors.white;
 
-const warningBackgroundColor = Colors.yellow;
-const warningForegroundColor = Colors.black;
+const Color appBarBackgroundColor = Colors.white;
+const Color appBarForegroundColor = textColor;
 
-const successBackgroundColor = Colors.blue;
-const successForegroundColor = Colors.white;
+const Color drawerBackgroundColor = Colors.white;
+const Color drawerForegroundColor = textColor;
 
-const closeButtonPlacement = "bottom"; // "bottom" or "right"
+// iOS system semantic colors
+const Color errorBackgroundColor = Color(0xFFFF3B30); // systemRed
+const Color errorForegroundColor = Colors.white;
+const Color infoBackgroundColor = Color(0xFF007AFF); // systemBlue
+const Color infoForegroundColor = Colors.white;
+const Color warningBackgroundColor = Color(0xFFFF9500); // systemOrange
+const Color warningForegroundColor = Colors.white;
+const Color successBackgroundColor = Color(0xFF34C759); // systemGreen
+const Color successForegroundColor = Colors.white;
+
+const String closeButtonPlacement = "bottom"; // "bottom" or "right"
+
+const Map<String, dynamic> defaultThemeParams = {
+  'accentColor': accentColor,
+  'borderRadius': borderRadius,
+  'fontFamily': gsFontFamily,
+  'textTheme': null, // TextTheme? — app-provided full text theme
+  'textColor': textColor,
+  'secondaryTextColor': secondaryTextColor,
+  'separatorColor': separatorColor,
+  'neutralSurfaceColor': neutralSurfaceColor,
+  'primarySwatch': primarySwatch,
+  'scaffoldBackgroundColor': scaffoldBackgroundColor,
+  'appBarBackgroundColor': appBarBackgroundColor,
+  'appBarForegroundColor': appBarForegroundColor,
+  'drawerBackgroundColor': drawerBackgroundColor,
+  'drawerForegroundColor': drawerForegroundColor,
+  'errorBackgroundColor': errorBackgroundColor,
+  'errorForegroundColor': errorForegroundColor,
+  'infoBackgroundColor': infoBackgroundColor,
+  'infoForegroundColor': infoForegroundColor,
+  'warningBackgroundColor': warningBackgroundColor,
+  'warningForegroundColor': warningForegroundColor,
+  'successBackgroundColor': successBackgroundColor,
+  'successForegroundColor': successForegroundColor,
+  'closeButtonPlacement': closeButtonPlacement,
+};

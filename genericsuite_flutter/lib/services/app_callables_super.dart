@@ -6,26 +6,12 @@ import 'theme_config_defaults.dart';
 
 class AppCallablesSuper {
   /*
-   * Get the theme parameters
+   * Get the theme parameters. Override in the app's AppCallables to
+   * customize; only the keys you return are changed — CreateGsApp merges
+   * this map over defaultThemeParams.
    */
   Map<String, dynamic> getThemeParams() {
-    return {
-      'primarySwatch': primarySwatch,
-      'scaffoldBackgroundColor': scaffoldBackgroundColor,
-      'appBarBackgroundColor': appBarBackgroundColor,
-      'appBarForegroundColor': appBarForegroundColor,
-      'drawerBackgroundColor': drawerBackgroundColor,
-      'drawerForegroundColor': drawerForegroundColor,
-      'errorBackgroundColor': errorBackgroundColor,
-      'errorForegroundColor': errorForegroundColor,
-      'infoBackgroundColor': infoBackgroundColor,
-      'infoForegroundColor': infoForegroundColor,
-      'warningBackgroundColor': warningBackgroundColor,
-      'warningForegroundColor': warningForegroundColor,
-      'successBackgroundColor': successBackgroundColor,
-      'successForegroundColor': successForegroundColor,
-      'closeButtonPlacement': closeButtonPlacement,
-    };
+    return Map<String, dynamic>.from(defaultThemeParams);
   }
 
   /*
