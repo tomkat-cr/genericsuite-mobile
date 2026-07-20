@@ -6,6 +6,7 @@ export 'services/config_service.dart';
 export 'services/convertion_utilities.dart';
 export 'services/create_gs_app.dart';
 export 'services/crud_editor.dart';
+export 'services/crud_editor_child_components.dart';
 export 'services/crud_editor_commons.dart';
 export 'services/crud_editor_selector.dart';
 export 'services/crud_editor_sf_filters.dart';
