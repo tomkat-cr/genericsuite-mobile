@@ -1,6 +1,6 @@
 name: genericsuite
 description: "GenericSuite Mobile Flutter package."
-version: 0.4.1
+version: 0.5.0
 homepage: https://github.com/mediabros/genericsuite-mobile
 repository: https://github.com/mediabros/genericsuite-mobile
 issue_tracker: https://github.com/mediabros/genericsuite-mobile/issues
@@ -20,6 +20,8 @@ dependencies:
   intl: ^0.20.2
   network_info_plus: ^7.0.0
   uuid: ^4.5.2
+  shadcn_ui: ^0.53.0
+  google_fonts: ^8.2.0
 
 dev_dependencies:
   flutter_test:
