@@ -189,3 +189,67 @@ Future<Map<String, dynamic>> reduceAllResponses(
   }
   return responsesReduced;
 }
+
+/*
+ * Build the row payload for a database write, mirroring genericsuite-fe's
+ * saveRowToDatabase() child_listing handling
+ * (generic.editor.rfc.formpage.jsx). For master_listing editors the row
+ * passes through unchanged (minus any 'resultset' attribute).
+ *
+ * child_listing / subType 'array': the child rows live inside an array
+ * attribute of the parent row, so the payload becomes
+ *   {parentKeys..., <array_name>: submittedItem, <array_name>_old: initialValues}
+ * and rowId must be null.
+ *
+ * child_listing / subType 'table': the child rows live in their own table,
+ * so the parent key(s) are merged into the child row.
+ */
+Map<String, dynamic> buildChildRowToSave({
+  required Map<String, dynamic> editorConfig,
+  required String action,
+  required String? rowId,
+  required Map<String, dynamic> submittedItem,
+  required Map<String, dynamic> initialValues,
+}) {
+  final Map<String, dynamic> rowToSave = Map<String, dynamic>.from(
+    submittedItem,
+  )..remove('resultset');
+  final Map<String, dynamic> cleanInitialValues = Map<String, dynamic>.from(
+    initialValues,
+  )..remove('resultset');
+
+  if (editorConfig['type'] != 'child_listing') {
+    return {'rowId': rowId, 'rowToSave': rowToSave};
+  }
+
+  // Parent id field name(s) and value(s), from endpointKeyNames + parentData
+  final Map<String, dynamic> parentKeys = {};
+  for (final keyPair in (editorConfig['endpointKeyNames'] as List)) {
+    parentKeys[keyPair['parameterName']] =
+        editorConfig['parentData'][keyPair['parentElementName']];
+  }
+
+  if (editorConfig['subType'] == 'array') {
+    final String arrayName = editorConfig['array_name'];
+    if (action == actionDelete) {
+      return {
+        'rowId': null,
+        'rowToSave': {...parentKeys, '${arrayName}_old': cleanInitialValues},
+      };
+    }
+    return {
+      'rowId': null,
+      'rowToSave': {
+        ...parentKeys,
+        arrayName: rowToSave,
+        '${arrayName}_old': cleanInitialValues,
+      },
+    };
+  }
+
+  // subType 'table'
+  return {
+    'rowId': action == actionCreate ? null : rowId,
+    'rowToSave': {...rowToSave, ...parentKeys},
+  };
+}
