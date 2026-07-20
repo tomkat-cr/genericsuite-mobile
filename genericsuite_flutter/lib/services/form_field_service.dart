@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'autocomplete_service.dart';
+import 'crud_editor_child_components.dart';
+import 'crud_editor_commons.dart';
 import 'select_options_service.dart';
 import 'utilities.dart';
 
@@ -709,6 +711,23 @@ class _DataFormBodyState extends State<DataFormBody> {
         ),
       ),
     );
+
+    // Child components (1-N relationships), like genericsuite-fe's
+    // iterateChildComponents(): only when editing an existing row.
+    final List childComponents =
+        widget.editorConfig['childComponents'] ?? const [];
+    if (widget.action == actionUpdate && childComponents.isNotEmpty) {
+      formFields.add(const SizedBox(height: 24));
+      formFields.add(const Divider());
+      formFields.addAll(
+        buildChildComponentSections(
+          context: context,
+          editorConfig: widget.editorConfig,
+          callbacks: widget.callbacks,
+          parentData: widget.selectedItem,
+        ),
+      );
+    }
 
     return Form(
       key: formKey,
