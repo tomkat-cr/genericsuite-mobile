@@ -53,6 +53,7 @@ class CrudEditorState extends State<CrudEditor> {
 
   Map<String, dynamic> callbacks = {};
   dynamic selectedItem;
+  Map<String, dynamic> originalSelectedItem = {};
   bool isEditMode = false;
   bool isCreation = false;
   bool _isLoading = false;
@@ -678,6 +679,7 @@ class CrudEditorState extends State<CrudEditor> {
               } else if (isCreationForced) {
                 setState(() {
                   selectedItem = _getEmptyItem();
+                  originalSelectedItem = {};
                   isCreation = true;
                 });
                 if (gceMainDebug) {
@@ -1275,6 +1277,12 @@ class CrudEditorState extends State<CrudEditor> {
     itemData = callbackResp['fieldValues'];
     isEditMode = true;
 
+    // Keep a deep copy of the loaded row: child_listing 'array' writes need
+    // the initial values ('<array_name>_old') to locate the old element.
+    originalSelectedItem = Map<String, dynamic>.from(
+      json.decode(json.encode(itemData)),
+    );
+
     return itemData;
   }
 
@@ -1362,10 +1370,19 @@ class CrudEditorState extends State<CrudEditor> {
 
     item = {...item, ...callbackResp['fieldValues']};
 
+    // Build the payload: pass-through for master_listing, wrapped payload
+    // for child_listing editors (parent keys, array/_old handling).
+    final Map<String, dynamic> childPayload = buildChildRowToSave(
+      editorConfig: editorConfig,
+      action: isCreation ? actionCreate : actionUpdate,
+      rowId: isCreation ? null : rowId(item),
+      submittedItem: item,
+      initialValues: originalSelectedItem,
+    );
     final localApiResp = await _runApiCall(
       urlGenSuffix,
       (isCreation ? 'post' : 'put'),
-      item,
+      childPayload['rowToSave'],
       {},
     );
     if (gceMainDebug) {
@@ -1394,7 +1411,10 @@ class CrudEditorState extends State<CrudEditor> {
     }
 
     // Update item id with the one returned by the API
-    item['id'] = localApiResp['resultset']['_id'];
+    if (localApiResp['resultset'] is Map &&
+        localApiResp['resultset']['_id'] != null) {
+      item['id'] = localApiResp['resultset']['_id'];
+    }
 
     // dbPostWrite: After a successful write to database.
     // If any error, shows the error message and stays in FormData.
@@ -1486,9 +1506,23 @@ class CrudEditorState extends State<CrudEditor> {
       return;
     }
 
-    // Delete item from database (API)
+    // Delete item from database (API). child_listing editors send the
+    // wrapped payload (parent keys + '<array_name>_old' for 'array').
     Map<String, dynamic> body = {'id': itemId};
     Map<String, dynamic> getParams = {'id': itemId};
+    if (editorConfig['type'] == 'child_listing') {
+      final Map<String, dynamic> childPayload = buildChildRowToSave(
+        editorConfig: editorConfig,
+        action: actionDelete,
+        rowId: itemId,
+        submittedItem: Map<String, dynamic>.from(selectedItem),
+        initialValues: originalSelectedItem,
+      );
+      body = childPayload['rowToSave'];
+      if (editorConfig['subType'] == 'array') {
+        getParams = fixMapString(editorConfig['endpointFilter']);
+      }
+    }
     final localApiResp = await _runApiCall(
       urlGenSuffix,
       'delete',
@@ -1858,13 +1892,18 @@ class CrudEditorState extends State<CrudEditor> {
         '\n errorCode: $errorCode',
       );
     }
+    final bool isChildComponent =
+        widget.props != null && (widget.props!['isChildComponent'] ?? false);
     return AppFrame(
       showAppMenu: showAppMenu,
       showBackButton:
-          !showAppMenu && (widget.backButtonAction != null || isEditMode),
+          !showAppMenu &&
+          (widget.backButtonAction != null || isEditMode || isChildComponent),
       action: widget.backButtonAction == null
           ? isEditMode
                 ? () => _setEditMode(false)
+                : isChildComponent
+                ? () => Navigator.pop(context)
                 : null
           : () => Navigator.push(
               context,
@@ -1887,6 +1926,7 @@ class CrudEditorState extends State<CrudEditor> {
                 isEditMode = true;
                 isCreation = true;
                 selectedItem = _getEmptyItem();
+                originalSelectedItem = {};
               }),
               child: const Icon(Icons.add),
             ),
