@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genericsuite/genericsuite.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('defaultThemeParams carries the Apple-clean design tokens', () {
     expect(defaultThemeParams['accentColor'], Colors.green);
     expect(defaultThemeParams['borderRadius'], 12.0);
@@ -33,5 +35,25 @@ void main() {
     // Legacy keys still present for existing consumer apps
     expect(params.containsKey('primarySwatch'), true);
     expect(params.containsKey('drawerBackgroundColor'), true);
+  });
+
+  test('buildGsMaterialTheme(defaultThemeParams) reflects the accent/radius '
+      'tokens', () {
+    final ThemeData theme = buildGsMaterialTheme(defaultThemeParams);
+    expect(theme.colorScheme.primary, isNotNull);
+    expect(
+      (theme.elevatedButtonTheme.style?.backgroundColor?.resolve(
+        <WidgetState>{},
+      )),
+      Colors.green,
+    );
+    final RoundedRectangleBorder shape =
+        theme.elevatedButtonTheme.style?.shape?.resolve(<WidgetState>{})
+            as RoundedRectangleBorder;
+    expect(
+      (shape.borderRadius as BorderRadius).topLeft,
+      const Radius.circular(12.0),
+    );
+    expect(theme.scaffoldBackgroundColor, Colors.white);
   });
 }
