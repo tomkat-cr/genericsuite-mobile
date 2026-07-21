@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 // they want to change.
 
 const MaterialColor accentColor = Colors.green;
+
 const double borderRadius = 12.0;
+const double separatorWidth = 1.0;
 
 // Typography tokens. 'Inter' triggers GoogleFonts.interTextTheme() in
 // CreateGsApp; any other family name is applied verbatim. An app can also

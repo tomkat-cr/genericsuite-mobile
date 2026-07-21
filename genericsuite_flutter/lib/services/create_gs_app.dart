@@ -29,12 +29,13 @@ const loginInitialParams = {
  * (defaultThemeParams merged with the app's getThemeParams()) [GS-261].
  */
 ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
-  final Color accent = tp['accentColor'] ?? accentColor;
-  final double radius = ((tp['borderRadius'] ?? borderRadius) as num)
+  final Color accentColorHere = tp['accentColor'] ?? accentColor;
+  final double borderRadiusHere = ((tp['borderRadius'] ?? borderRadius) as num)
       .toDouble();
-  final Color text = tp['textColor'] ?? textColor;
-  final Color separator = tp['separatorColor'] ?? separatorColor;
-  final BorderRadius corners = BorderRadius.circular(radius);
+  final Color textColorHere = tp['textColor'] ?? textColor;
+  final Color separatorColorHere = tp['separatorColor'] ?? separatorColor;
+  final double separatorWidthHere = tp['separatorWidth'] ?? separatorWidth;
+  final BorderRadius corners = BorderRadius.circular(borderRadiusHere);
 
   TextTheme baseTextTheme;
   if (tp['textTheme'] != null) {
@@ -46,13 +47,16 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
       fontFamily: tp['fontFamily'],
     );
   }
-  baseTextTheme = baseTextTheme.apply(bodyColor: text, displayColor: text);
+  baseTextTheme = baseTextTheme.apply(
+    bodyColor: textColorHere,
+    displayColor: textColorHere,
+  );
 
   return ThemeData(
     useMaterial3: true,
     colorScheme:
         ColorScheme.fromSeed(
-          seedColor: accent,
+          seedColor: accentColorHere,
           brightness: Brightness.light,
         ).copyWith(
           surface: tp['scaffoldBackgroundColor'] ?? scaffoldBackgroundColor,
@@ -71,21 +75,27 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: corners,
-        borderSide: BorderSide(color: separator),
+        borderSide: BorderSide(
+          color: separatorColorHere,
+          width: separatorWidthHere,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: corners,
-        borderSide: BorderSide(color: separator),
+        borderSide: BorderSide(
+          color: separatorColorHere,
+          width: separatorWidthHere,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: corners,
-        borderSide: BorderSide(color: accent, width: 2),
+        borderSide: BorderSide(color: accentColorHere, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: accent,
+        backgroundColor: accentColorHere,
         foregroundColor: Colors.white,
         elevation: 0,
         minimumSize: const Size(88, 44),
@@ -97,16 +107,19 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: corners,
-        side: BorderSide(color: separator),
+        side: BorderSide(color: separatorColorHere, width: separatorWidthHere),
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
     ),
-    dividerTheme: DividerThemeData(color: separator, thickness: 0.5),
+    dividerTheme: DividerThemeData(
+      color: separatorColorHere,
+      thickness: separatorWidthHere,
+    ),
     listTileTheme: ListTileThemeData(
       iconColor: tp['secondaryTextColor'] ?? secondaryTextColor,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: accent,
+      backgroundColor: accentColorHere,
       foregroundColor: Colors.white,
       elevation: 0,
     ),

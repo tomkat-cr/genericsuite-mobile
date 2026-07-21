@@ -35,14 +35,14 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
-  google_fonts: ^6.3.0
+  google_fonts: ^8.2.0
   markdown: ^7.3.0
   intl: ^0.20.2
   flutter_markdown_plus: ^1.0.7
 
   genericsuite:
     git:
-      url: https://github.com/tomkat-cr/genericsuite-mobile
+      url: ../../genericsuite-mobile
       ref: develop
       path: genericsuite_flutter
 
