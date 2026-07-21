@@ -41,7 +41,10 @@ void main() {
 
   test('buildGsMaterialTheme(defaultThemeParams) reflects the accent/radius '
       'tokens', () {
-    final ThemeData theme = buildGsMaterialTheme(defaultThemeParams);
+    final ThemeData theme = buildGsMaterialTheme({
+      ...defaultThemeParams,
+      'fontFamily': 'Roboto', // avoid Google Fonts network in unit tests
+    });
     expect(theme.colorScheme.primary, isNotNull);
     expect(
       (theme.elevatedButtonTheme.style?.backgroundColor?.resolve(
