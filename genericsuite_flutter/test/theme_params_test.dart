@@ -25,6 +25,8 @@ void main() {
       const Color(0xFF34C759),
     );
     expect(defaultThemeParams['closeButtonPlacement'], 'bottom');
+    expect(defaultThemeParams['shadColorSchemeName'], 'green');
+    expect(shadColorSchemeName, 'green');
   });
 
   test('getThemeParams() returns the defaults and keeps the legacy keys', () {

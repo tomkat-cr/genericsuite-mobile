@@ -15,6 +15,11 @@ const MaterialColor accentColor = Colors.green;
 const double borderRadius = 12.0;
 const double separatorWidth = 1.0;
 
+// Named shadcn_ui base scheme for buildGsShadTheme(). Valid values match
+// ShadColorScheme.fromName: blue, gray, green, neutral, orange, red, rose,
+// slate, stone, violet, yellow, zinc. Apps override via getThemeParams().
+const String shadColorSchemeName = 'green';
+
 // Typography tokens. 'Inter' triggers GoogleFonts.interTextTheme() in
 // CreateGsApp; any other family name is applied verbatim. An app can also
 // provide a full TextTheme via the 'textTheme' theme param (null = derive
@@ -73,4 +78,5 @@ const Map<String, dynamic> defaultThemeParams = {
   'successBackgroundColor': successBackgroundColor,
   'successForegroundColor': successForegroundColor,
   'closeButtonPlacement': closeButtonPlacement,
+  'shadColorSchemeName': shadColorSchemeName,
 };
