@@ -58,4 +58,43 @@ void main() {
     );
     expect(theme.scaffoldBackgroundColor, Colors.white);
   });
+
+  test('buildGsShadTheme maps GS tokens and keeps named-base selection', () {
+    final theme = buildGsShadTheme({
+      ...defaultThemeParams,
+      'fontFamily': 'Roboto', // Use system font to avoid Google Fonts loading
+      'shadColorSchemeName': 'slate',
+      'accentColor': Colors.teal,
+    });
+    expect(theme.brightness, Brightness.light);
+    expect(theme.colorScheme.primary, Colors.teal);
+    expect(theme.colorScheme.ring, Colors.teal);
+    expect(theme.colorScheme.primaryForeground, Colors.white);
+    expect(theme.colorScheme.background, Colors.white);
+    expect(theme.colorScheme.foreground, const Color(0xFF111111));
+    expect(theme.colorScheme.mutedForeground, const Color(0xFF6E6E73));
+    expect(theme.colorScheme.destructive, const Color(0xFFFF3B30));
+    expect(theme.colorScheme.destructiveForeground, Colors.white);
+    expect(theme.colorScheme.border, const Color(0xFFD1D1D6));
+    expect(theme.colorScheme.input, const Color(0xFFD1D1D6));
+    expect(theme.colorScheme.secondary, const Color(0xFFF2F2F7));
+    expect(theme.colorScheme.muted, const Color(0xFFF2F2F7));
+    expect(theme.colorScheme.accent, const Color(0xFFF2F2F7));
+    // selection left from named slate base (must not equal teal brand)
+    expect(theme.colorScheme.selection, isNot(Colors.teal));
+    expect(theme.radius, BorderRadius.circular(12.0));
+  });
+
+  test('buildGsShadTheme falls back to green for invalid scheme names', () {
+    final theme = buildGsShadTheme({
+      ...defaultThemeParams,
+      'fontFamily': 'Roboto', // Use system font to avoid Google Fonts loading
+      'shadColorSchemeName': 'not-a-real-scheme',
+      'accentColor': Colors.orange,
+    });
+    expect(theme.colorScheme.primary, Colors.orange);
+    expect(theme.colorScheme.ring, Colors.orange);
+    // Green base keeps a non-null selection; fallback must not throw.
+    expect(theme.colorScheme.selection, isNotNull);
+  });
 }

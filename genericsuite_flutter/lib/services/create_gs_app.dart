@@ -24,18 +24,42 @@ const loginInitialParams = {
   "statusCode": 0,
 };
 
-/*
- * Build the MaterialApp ThemeData from the GenericSuite theme tokens
- * (defaultThemeParams merged with the app's getThemeParams()) [GS-261].
- */
-ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
-  final Color accentColorHere = tp['accentColor'] ?? accentColor;
-  final double borderRadiusHere = ((tp['borderRadius'] ?? borderRadius) as num)
+Map<String, dynamic> getNewThemeParams(Map<String, dynamic> tp) {
+  Map<String, dynamic> newTp = Map<String, dynamic>.from(tp);
+
+  newTp['accentColor'] = tp['accentColor'] ?? accentColor;
+  newTp['borderRadius'] = ((tp['borderRadius'] ?? borderRadius) as num)
       .toDouble();
-  final Color textColorHere = tp['textColor'] ?? textColor;
-  final Color separatorColorHere = tp['separatorColor'] ?? separatorColor;
-  final double separatorWidthHere = tp['separatorWidth'] ?? separatorWidth;
-  final BorderRadius corners = BorderRadius.circular(borderRadiusHere);
+  newTp['textColor'] = tp['textColor'] ?? textColor;
+  newTp['separatorColor'] = tp['separatorColor'] ?? separatorColor;
+  newTp['separatorWidth'] = tp['separatorWidth'] ?? separatorWidth;
+
+  newTp['scaffoldBackgroundColor'] =
+      tp['scaffoldBackgroundColor'] ?? scaffoldBackgroundColor;
+  newTp['errorBackgroundColor'] =
+      tp['errorBackgroundColor'] ?? errorBackgroundColor;
+  newTp['appBarBackgroundColor'] =
+      tp['appBarBackgroundColor'] ?? appBarBackgroundColor;
+  newTp['appBarForegroundColor'] =
+      tp['appBarForegroundColor'] ?? appBarForegroundColor;
+  newTp['secondaryTextColor'] = tp['secondaryTextColor'] ?? secondaryTextColor;
+  newTp['drawerBackgroundColor'] =
+      tp['drawerBackgroundColor'] ?? drawerBackgroundColor;
+
+  newTp['focusedBorderWidth'] = ((tp['focusedBorderWidth'] ?? 2) as num).toDouble();
+
+  newTp['contentPaddingHorizontal'] = ((tp['contentPaddingHorizontal'] ?? 12) as num).toDouble();
+  newTp['contentPaddingVertical'] = ((tp['contentPaddingVertical'] ?? 12) as num).toDouble();
+
+  newTp['shadColorSchemeName'] =
+      tp['shadColorSchemeName'] ?? shadColorSchemeName;
+  newTp['neutralSurfaceColor'] =
+      tp['neutralSurfaceColor'] ?? neutralSurfaceColor;
+  newTp['errorForegroundColor'] =
+      tp['errorForegroundColor'] ?? errorForegroundColor;
+
+  final BorderRadius corners = BorderRadius.circular(newTp['borderRadius']);
+  newTp['corners'] = corners;
 
   TextTheme baseTextTheme;
   if (tp['textTheme'] != null) {
@@ -48,84 +72,161 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
     );
   }
   baseTextTheme = baseTextTheme.apply(
-    bodyColor: textColorHere,
-    displayColor: textColorHere,
+    bodyColor: newTp['textColor'],
+    displayColor: newTp['textColor'],
   );
+  newTp['baseTextTheme'] = baseTextTheme;
 
+  return newTp;
+}
+
+/*
+ * Build the MaterialApp ThemeData from the GenericSuite theme tokens
+ * (defaultThemeParams merged with the app's getThemeParams()) [GS-261].
+ */
+ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
+  Map<String, dynamic> newTp = getNewThemeParams(tp);
   return ThemeData(
     useMaterial3: true,
     colorScheme:
         ColorScheme.fromSeed(
-          seedColor: accentColorHere,
+          seedColor: newTp['accentColor'],
           brightness: Brightness.light,
         ).copyWith(
-          surface: tp['scaffoldBackgroundColor'] ?? scaffoldBackgroundColor,
-          error: tp['errorBackgroundColor'] ?? errorBackgroundColor,
+          surface: newTp['scaffoldBackgroundColor'],
+          error: newTp['errorBackgroundColor'],
         ),
-    scaffoldBackgroundColor:
-        tp['scaffoldBackgroundColor'] ?? scaffoldBackgroundColor,
-    textTheme: baseTextTheme,
+    scaffoldBackgroundColor: newTp['scaffoldBackgroundColor'],
+    textTheme: newTp['baseTextTheme'],
     appBarTheme: AppBarTheme(
-      backgroundColor: tp['appBarBackgroundColor'] ?? appBarBackgroundColor,
-      foregroundColor: tp['appBarForegroundColor'] ?? appBarForegroundColor,
+      backgroundColor: newTp['appBarBackgroundColor'],
+      foregroundColor: newTp['appBarForegroundColor'],
       elevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: true,
     ),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
-        borderRadius: corners,
+        borderRadius: newTp['corners'],
         borderSide: BorderSide(
-          color: separatorColorHere,
-          width: separatorWidthHere,
+          color: newTp['separatorColor'],
+          width: newTp['separatorWidth'],
         ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: corners,
+        borderRadius: newTp['corners'],
         borderSide: BorderSide(
-          color: separatorColorHere,
-          width: separatorWidthHere,
+          color: newTp['separatorColor'],
+          width: newTp['separatorWidth'],
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: corners,
-        borderSide: BorderSide(color: accentColorHere, width: 2),
+        borderRadius: newTp['corners'],
+        borderSide: BorderSide(
+          color: newTp['accentColor'],
+          width: newTp['focusedBorderWidth'],
+        ),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: newTp['contentPaddingHorizontal'],
+        vertical: newTp['contentPaddingVertical'],
+      ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: accentColorHere,
+        backgroundColor: newTp['accentColor'],
         foregroundColor: Colors.white,
         elevation: 0,
         minimumSize: const Size(88, 44),
-        shape: RoundedRectangleBorder(borderRadius: corners),
+        shape: RoundedRectangleBorder(borderRadius: newTp['corners']),
       ),
     ),
     cardTheme: CardThemeData(
       color: Colors.white,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: corners,
-        side: BorderSide(color: separatorColorHere, width: separatorWidthHere),
+        borderRadius: newTp['corners'],
+        side: BorderSide(
+          color: newTp['separatorColor'],
+          width: newTp['separatorWidth'],
+        ),
       ),
       margin: const EdgeInsets.symmetric(vertical: 4),
     ),
     dividerTheme: DividerThemeData(
-      color: separatorColorHere,
-      thickness: separatorWidthHere,
+      color: newTp['separatorColor'],
+      thickness: newTp['separatorWidth'],
     ),
-    listTileTheme: ListTileThemeData(
-      iconColor: tp['secondaryTextColor'] ?? secondaryTextColor,
-    ),
+    listTileTheme: ListTileThemeData(iconColor: newTp['secondaryTextColor']),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: accentColorHere,
+      backgroundColor: newTp['accentColor'],
       foregroundColor: Colors.white,
       elevation: 0,
     ),
     drawerTheme: DrawerThemeData(
-      backgroundColor: tp['drawerBackgroundColor'] ?? drawerBackgroundColor,
+      backgroundColor: newTp['drawerBackgroundColor'],
     ),
+  );
+}
+
+/*
+ * Build the ShadApp ShadThemeData from the GenericSuite theme tokens
+ * (defaultThemeParams merged with the app's getThemeParams()) [GS-261].
+ *
+ * Base scheme: ShadColorScheme.fromName(shadColorSchemeName).
+ * Brand: accentColor overrides primary + ring. Other GS surface/text/error
+ * tokens override matching Shad slots; selection stays from the named base.
+ */
+ShadThemeData buildGsShadTheme(Map<String, dynamic> tp) {
+  final Map<String, dynamic> newTp = getNewThemeParams(tp);
+  final String schemeName =
+      (newTp['shadColorSchemeName'] ?? shadColorSchemeName).toString();
+
+  ShadColorScheme baseScheme;
+  try {
+    baseScheme = ShadColorScheme.fromName(
+      schemeName,
+      brightness: Brightness.light,
+    );
+  } catch (_) {
+    if (createGsAppDebug) {
+      logDebug(
+        'buildGsShadTheme | invalid shadColorSchemeName "$schemeName", '
+        'falling back to "$shadColorSchemeName"',
+      );
+    }
+    baseScheme = ShadColorScheme.fromName(
+      shadColorSchemeName,
+      brightness: Brightness.light,
+    );
+  }
+
+  final ShadColorScheme colorScheme = baseScheme.copyWith(
+    background: newTp['scaffoldBackgroundColor'],
+    foreground: newTp['textColor'],
+    card: newTp['scaffoldBackgroundColor'],
+    cardForeground: newTp['textColor'],
+    popover: newTp['scaffoldBackgroundColor'],
+    popoverForeground: newTp['textColor'],
+    primary: newTp['accentColor'],
+    primaryForeground: Colors.white,
+    secondary: newTp['neutralSurfaceColor'],
+    secondaryForeground: newTp['textColor'],
+    muted: newTp['neutralSurfaceColor'],
+    mutedForeground: newTp['secondaryTextColor'],
+    accent: newTp['neutralSurfaceColor'],
+    accentForeground: newTp['textColor'],
+    destructive: newTp['errorBackgroundColor'],
+    destructiveForeground: newTp['errorForegroundColor'],
+    border: newTp['separatorColor'],
+    input: newTp['separatorColor'],
+    ring: newTp['accentColor'],
+  );
+
+  return ShadThemeData(
+    brightness: Brightness.light,
+    colorScheme: colorScheme,
+    radius: newTp['corners'],
   );
 }
 
@@ -179,13 +280,7 @@ class CreateGsAppState extends State<CreateGsApp> {
     };
     return ShadApp.custom(
       themeMode: ThemeMode.light,
-      theme: ShadThemeData(
-        brightness: Brightness.light,
-        colorScheme: const ShadGreenColorScheme.light(),
-        radius: BorderRadius.circular(
-          ((tp['borderRadius'] ?? borderRadius) as num).toDouble(),
-        ),
-      ),
+      theme: buildGsShadTheme(tp),
       appBuilder: (context) {
         return MaterialApp(
           title: '${appInfo['name']}: ${appInfo['description']}',
