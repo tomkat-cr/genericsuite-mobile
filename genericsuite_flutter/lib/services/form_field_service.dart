@@ -8,6 +8,7 @@ import 'autocomplete_service.dart';
 import 'crud_editor_child_components.dart';
 import 'crud_editor_commons.dart';
 import 'select_options_service.dart';
+import 'theme_config_defaults.dart';
 import 'utilities.dart';
 
 const gceFsDebug = false;
@@ -685,8 +686,6 @@ class _DataFormBodyState extends State<DataFormBody> {
       }
     }
 
-    formFields.add(const SizedBox(height: 20));
-
     formFields.add(
       Center(
         child: Row(
@@ -718,7 +717,6 @@ class _DataFormBodyState extends State<DataFormBody> {
     final List childComponents =
         widget.editorConfig['childComponents'] ?? const [];
     if (widget.action == actionUpdate && childComponents.isNotEmpty) {
-      formFields.add(const SizedBox(height: 24));
       formFields.add(const Divider());
       formFields.addAll(
         buildChildComponentSections(
@@ -735,9 +733,20 @@ class _DataFormBodyState extends State<DataFormBody> {
       child: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(16.0),
-        children: formFields,
+        children: _spaceFormChildren(formFields),
       ),
     );
+  }
+
+  /// Insert vertical gaps so outlined focus borders do not overlap neighbors.
+  List<Widget> _spaceFormChildren(List<Widget> children) {
+    if (children.length <= 1) return children;
+    final List<Widget> spaced = <Widget>[children.first];
+    for (var i = 1; i < children.length; i++) {
+      spaced.add(const SizedBox(height: fieldVerticalSpacing));
+      spaced.add(children[i]);
+    }
+    return spaced;
   }
 
   @override

@@ -13,7 +13,14 @@ import 'package:flutter/material.dart';
 const MaterialColor accentColor = Colors.green;
 
 const double borderRadius = 12.0;
-const double separatorWidth = 1.0;
+
+// Defines the border line's weight of Material inputDecorationTheme
+// border and enabledBorder, and dividerTheme thickness
+const double separatorWidth = 0.50;
+
+// Vertical gap between stacked form fields so outlined focus rings do not
+// overlap the previous field's border / floating label.
+const double fieldVerticalSpacing = 12.0;
 
 // Named shadcn_ui base scheme for buildGsShadTheme(). Valid values match
 // ShadColorScheme.fromName: blue, gray, green, neutral, orange, red, rose,
@@ -57,6 +64,7 @@ const String closeButtonPlacement = "bottom"; // "bottom" or "right"
 const Map<String, dynamic> defaultThemeParams = {
   'accentColor': accentColor,
   'borderRadius': borderRadius,
+  'fieldVerticalSpacing': fieldVerticalSpacing,
   'fontFamily': gsFontFamily,
   'textTheme': null, // TextTheme? — app-provided full text theme
   'textColor': textColor,

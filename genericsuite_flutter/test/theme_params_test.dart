@@ -8,6 +8,7 @@ void main() {
   test('defaultThemeParams carries the Apple-clean design tokens', () {
     expect(defaultThemeParams['accentColor'], Colors.green);
     expect(defaultThemeParams['borderRadius'], 12.0);
+    expect(defaultThemeParams['fieldVerticalSpacing'], 12.0);
     expect(defaultThemeParams['fontFamily'], 'Inter');
     expect(defaultThemeParams['textTheme'], isNull);
     expect(defaultThemeParams['textColor'], const Color(0xFF111111));

@@ -306,7 +306,12 @@ class _AppDrawerState extends State<AppDrawer> {
     if (apDrwDebug) {
       logDebug('Drawer | Building widget');
     }
+    final Color drawerBg =
+        appCallables.getThemeParams()['drawerBackgroundColor'] as Color? ??
+        Theme.of(context).drawerTheme.backgroundColor ??
+        Colors.white;
     return Drawer(
+      backgroundColor: drawerBg,
       child: ListView(
         padding: EdgeInsets.zero,
         children: _isLoading

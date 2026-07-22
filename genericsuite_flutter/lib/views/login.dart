@@ -8,6 +8,7 @@ import '../services/crud_editor.dart';
 import '../services/http_service.dart';
 import '../services/locator_service.dart';
 import '../services/message_service.dart';
+import '../services/theme_config_defaults.dart';
 import '../services/utilities.dart';
 
 const loginDebug = false;
@@ -211,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
         controller: _usernameController,
         decoration: const InputDecoration(labelText: 'Username'),
       ),
+      const SizedBox(height: fieldVerticalSpacing),
       TextFormField(
         controller: _passwordController,
         obscureText: true,
