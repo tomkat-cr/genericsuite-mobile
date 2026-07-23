@@ -28,28 +28,41 @@ Map<String, dynamic> getNewThemeParams(Map<String, dynamic> tp) {
   Map<String, dynamic> newTp = Map<String, dynamic>.from(tp);
 
   newTp['accentColor'] = tp['accentColor'] ?? accentColor;
+  newTp['accentForegroundColor'] = tp['accentForegroundColor'] ?? Colors.white;
+
   newTp['borderRadius'] = ((tp['borderRadius'] ?? borderRadius) as num)
       .toDouble();
+
   newTp['textColor'] = tp['textColor'] ?? textColor;
+
   newTp['separatorColor'] = tp['separatorColor'] ?? separatorColor;
   newTp['separatorWidth'] = tp['separatorWidth'] ?? separatorWidth;
 
   newTp['scaffoldBackgroundColor'] =
       tp['scaffoldBackgroundColor'] ?? scaffoldBackgroundColor;
+
   newTp['errorBackgroundColor'] =
       tp['errorBackgroundColor'] ?? errorBackgroundColor;
+
   newTp['appBarBackgroundColor'] =
       tp['appBarBackgroundColor'] ?? appBarBackgroundColor;
   newTp['appBarForegroundColor'] =
       tp['appBarForegroundColor'] ?? appBarForegroundColor;
+
   newTp['secondaryTextColor'] = tp['secondaryTextColor'] ?? secondaryTextColor;
+
   newTp['drawerBackgroundColor'] =
       tp['drawerBackgroundColor'] ?? drawerBackgroundColor;
+  newTp['drawerForegroundColor'] =
+      tp['drawerForegroundColor'] ?? drawerForegroundColor;
 
-  newTp['focusedBorderWidth'] = ((tp['focusedBorderWidth'] ?? 2) as num).toDouble();
+  newTp['focusedBorderWidth'] = ((tp['focusedBorderWidth'] ?? 2) as num)
+      .toDouble();
 
-  newTp['contentPaddingHorizontal'] = ((tp['contentPaddingHorizontal'] ?? 12) as num).toDouble();
-  newTp['contentPaddingVertical'] = ((tp['contentPaddingVertical'] ?? 12) as num).toDouble();
+  newTp['contentPaddingHorizontal'] =
+      ((tp['contentPaddingHorizontal'] ?? 12) as num).toDouble();
+  newTp['contentPaddingVertical'] =
+      ((tp['contentPaddingVertical'] ?? 12) as num).toDouble();
 
   newTp['shadColorSchemeName'] =
       tp['shadColorSchemeName'] ?? shadColorSchemeName;
@@ -135,14 +148,14 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: newTp['accentColor'],
-        foregroundColor: Colors.white,
+        foregroundColor: newTp['accentForegroundColor'],
         elevation: 0,
         minimumSize: const Size(88, 44),
         shape: RoundedRectangleBorder(borderRadius: newTp['corners']),
       ),
     ),
     cardTheme: CardThemeData(
-      color: Colors.white,
+      color: newTp['accentForegroundColor'],
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: newTp['corners'],
@@ -160,11 +173,12 @@ ThemeData buildGsMaterialTheme(Map<String, dynamic> tp) {
     listTileTheme: ListTileThemeData(iconColor: newTp['secondaryTextColor']),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: newTp['accentColor'],
-      foregroundColor: Colors.white,
+      foregroundColor: newTp['accentForegroundColor'],
       elevation: 0,
     ),
     drawerTheme: DrawerThemeData(
       backgroundColor: newTp['drawerBackgroundColor'],
+      surfaceTintColor: newTp['drawerForegroundColor'],
     ),
   );
 }
@@ -209,7 +223,7 @@ ShadThemeData buildGsShadTheme(Map<String, dynamic> tp) {
     popover: newTp['scaffoldBackgroundColor'],
     popoverForeground: newTp['textColor'],
     primary: newTp['accentColor'],
-    primaryForeground: Colors.white,
+    primaryForeground: newTp['accentForegroundColor'],
     secondary: newTp['neutralSurfaceColor'],
     secondaryForeground: newTp['textColor'],
     muted: newTp['neutralSurfaceColor'],

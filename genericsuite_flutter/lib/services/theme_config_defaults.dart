@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 // they want to change.
 
 const MaterialColor accentColor = Colors.green;
+const Color accentForegroundColor = Colors.white;
 
 const double borderRadius = 12.0;
 
@@ -35,6 +36,7 @@ const String gsFontFamily = 'Inter';
 
 const Color textColor = Color(0xFF111111); // near-black
 const Color secondaryTextColor = Color(0xFF6E6E73); // iOS secondary label
+
 const Color separatorColor = Color(0xFFD1D1D6); // iOS separator
 const Color neutralSurfaceColor = Color(0xFFF2F2F7); // iOS systemGray6
 
@@ -43,26 +45,44 @@ const Color neutralSurfaceColor = Color(0xFFF2F2F7); // iOS systemGray6
 const MaterialColor primarySwatch = accentColor;
 const Color scaffoldBackgroundColor = Colors.white;
 
-const Color appBarBackgroundColor = Colors.white;
-const Color appBarForegroundColor = textColor;
+const Color appBarBackgroundColor = accentColor; // Colors.white;
+const Color appBarForegroundColor = accentForegroundColor; // textColor;
 
-const Color drawerBackgroundColor = Colors.white;
+const Color drawerBarBackgroundColor = appBarBackgroundColor;
+const Color drawerBarForegroundColor = appBarForegroundColor;
+
+const Color drawerBackgroundColor = scaffoldBackgroundColor; // Colors.white;
 const Color drawerForegroundColor = textColor;
 
 // iOS system semantic colors
 const Color errorBackgroundColor = Color(0xFFFF3B30); // systemRed
 const Color errorForegroundColor = Colors.white;
+
 const Color infoBackgroundColor = Color(0xFF007AFF); // systemBlue
 const Color infoForegroundColor = Colors.white;
+
 const Color warningBackgroundColor = Color(0xFFFF9500); // systemOrange
 const Color warningForegroundColor = Colors.white;
+
 const Color successBackgroundColor = Color(0xFF34C759); // systemGreen
 const Color successForegroundColor = Colors.white;
 
 const String closeButtonPlacement = "bottom"; // "bottom" or "right"
 
+const String appBarLogoPath = 'assets/images/app_logo_horizontal.png';
+const String appBarTitleText = '';
+const double appBarTitleTextFontSize = 20.0;
+const FontWeight appBarTitleTextFontWeight = FontWeight.bold;
+
+const String drawerHeaderLogoPath =
+    'assets/images/app_logo_horizontal.png'; // 'assets/images/app_logo_circle.png';
+const String drawerHeaderText = '';
+const double drawerHeaderTextFontSize = 20.0;
+const FontWeight drawerHeaderTextFontWeight = FontWeight.bold;
+
 const Map<String, dynamic> defaultThemeParams = {
   'accentColor': accentColor,
+  'accentForegroundColor': accentForegroundColor,
   'borderRadius': borderRadius,
   'fieldVerticalSpacing': fieldVerticalSpacing,
   'fontFamily': gsFontFamily,
@@ -77,6 +97,8 @@ const Map<String, dynamic> defaultThemeParams = {
   'appBarForegroundColor': appBarForegroundColor,
   'drawerBackgroundColor': drawerBackgroundColor,
   'drawerForegroundColor': drawerForegroundColor,
+  'drawerBarBackgroundColor': drawerBarBackgroundColor,
+  'drawerBarForegroundColor': drawerBarForegroundColor,
   'errorBackgroundColor': errorBackgroundColor,
   'errorForegroundColor': errorForegroundColor,
   'infoBackgroundColor': infoBackgroundColor,
@@ -87,4 +109,12 @@ const Map<String, dynamic> defaultThemeParams = {
   'successForegroundColor': successForegroundColor,
   'closeButtonPlacement': closeButtonPlacement,
   'shadColorSchemeName': shadColorSchemeName,
+  'drawerHeaderLogoPath': drawerHeaderLogoPath,
+  'drawerHeaderText': drawerHeaderText,
+  'drawerHeaderTextFontSize': drawerHeaderTextFontSize,
+  'drawerHeaderTextFontWeight': drawerHeaderTextFontWeight,
+  'appBarLogoPath': appBarLogoPath,
+  'appBarTitleText': appBarTitleText,
+  'appBarTitleTextFontSize': appBarTitleTextFontSize,
+  'appBarTitleTextFontWeight': appBarTitleTextFontWeight,
 };

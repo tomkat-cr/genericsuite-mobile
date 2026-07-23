@@ -262,16 +262,29 @@ class _AppDrawerState extends State<AppDrawer> {
    */
   List<Widget> _buildMenu() {
     List<Widget> menuItems = [];
+    String drawerHeaderLogoPath = appCallables
+        .getThemeParams()['drawerHeaderLogoPath'];
+    String drawerHeaderText = appCallables.getThemeParams()['drawerHeaderText'];
     menuItems.add(
       DrawerHeader(
         decoration: BoxDecoration(
-          color: appCallables.getThemeParams()['drawerBackgroundColor'],
+          color: appCallables.getThemeParams()['drawerBarBackgroundColor'],
         ),
-        child: Image.asset(
-          'assets/images/app_logo_circle.png',
-          height: 250,
-          width: 250,
-        ),
+        child: drawerHeaderLogoPath.isNotEmpty
+            ? Image.asset(drawerHeaderLogoPath, height: 250, width: 250)
+            : drawerHeaderText.isNotEmpty
+            ? Text(
+                drawerHeaderText,
+                style: TextStyle(
+                  fontSize: appCallables
+                      .getThemeParams()['drawerHeaderTextFontSize'],
+                  fontWeight: appCallables
+                      .getThemeParams()['drawerHeaderTextFontWeight'],
+                  color: appCallables
+                      .getThemeParams()['drawerBarForegroundColor'],
+                ),
+              )
+            : const SizedBox.shrink(),
       ),
     );
     for (var item in menuConfig) {
@@ -306,12 +319,7 @@ class _AppDrawerState extends State<AppDrawer> {
     if (apDrwDebug) {
       logDebug('Drawer | Building widget');
     }
-    final Color drawerBg =
-        appCallables.getThemeParams()['drawerBackgroundColor'] as Color? ??
-        Theme.of(context).drawerTheme.backgroundColor ??
-        Colors.white;
     return Drawer(
-      backgroundColor: drawerBg,
       child: ListView(
         padding: EdgeInsets.zero,
         children: _isLoading
