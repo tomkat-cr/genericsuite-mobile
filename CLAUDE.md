@@ -4,14 +4,13 @@ This file provides guidance to AI Coding Assistants (Claude Code, Gemini CLI, Cu
 
 ## Repository Structure
 
-Two distinct packages live here:
+One package live here:
 
 - **`genericsuite_flutter/`** — Reusable Flutter library (v0.4.1) distributed as a Git dependency. This is the main package to develop.
-- **`flutter_project_template/`** — Starter app template showing real-world usage. Used by app developers who consume `genericsuite_flutter`.
 
 ## Commands
 
-All Flutter commands run from inside the relevant package directory (`genericsuite_flutter/` or `flutter_project_template/`).
+All Flutter commands run from inside the relevant package directory (`genericsuite_flutter/`).
 
 ```bash
 # Dependencies
@@ -25,23 +24,8 @@ flutter test test/some_test.dart  # single test file
 # Analysis / Lint
 flutter analyze
 
-# Build (from flutter_project_template/)
-flutter build apk --release       # Android APK
-flutter build appbundle --release # Android bundle (for Play Store)
-
 # Run
 flutter run
-```
-
-From `flutter_project_template/Makefile`:
-```bash
-make install        # flutter pub get
-make test           # flutter test
-make build          # release APK
-make build_bundle   # release bundle
-make clean          # full clean including Gradle and .dart_tool
-make clean_ios      # iOS rebuild (Pods, derived data)
-make run            # clean logs + flutter run
 ```
 
 From the root `Makefile`:

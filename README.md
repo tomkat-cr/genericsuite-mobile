@@ -15,19 +15,18 @@ Welcome to GenericSuite, a comprehensive software solution designed to help you 
 
 ```
 genericsuite-mobile/
-├── flutter_project_template/  # Flutter project template
 └── genericsuite/              # Flutter/Dart version of GenericSuite package
 ```
 
 ## Flutter project template
 
-The [Flutter project template](./flutter_project_template/README.md) is a flutter project ready to publish your app in the Google Play Store.
+The [Flutter project template](https://github.com/tomkat-cr/genericsuite-mobile-exampleapp) is a flutter project ready to publish your app in the Google Play Store.
 
 To use it follow these steps:
 
 1. Clone the repository.
     ```bash
-    git clone https://github.com/tomkat-cr/genericsuite-mobile.git
+    git clone https://github.com/tomkat-cr/genericsuite-mobile-exampleapp.git
     ```
 
 2. Make a copy of all your code, specially the `ios` directory. **PLEASE DON'T SKIP THIS STEP**, otherwise if you get the error mentioned in the Troubleshooting section, you won't be able to run the app in an iOS device simulator.

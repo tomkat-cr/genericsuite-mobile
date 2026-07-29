@@ -70,12 +70,18 @@ const Color successForegroundColor = Colors.white;
 const String closeButtonPlacement = "bottom"; // "bottom" or "right"
 
 const String appBarLogoPath = 'assets/images/app_logo_horizontal.png';
+const double appBarLogoHeight = 32.0;
+const double appBarLogoWidth = 128.0;
+
 const String appBarTitleText = '';
 const double appBarTitleTextFontSize = 20.0;
 const FontWeight appBarTitleTextFontWeight = FontWeight.bold;
 
 const String drawerHeaderLogoPath =
     'assets/images/app_logo_horizontal.png'; // 'assets/images/app_logo_circle.png';
+const double drawerHeaderLogoHeight = 250.0;
+const double drawerHeaderLogoWidth = 250.0;
+
 const String drawerHeaderText = '';
 const double drawerHeaderTextFontSize = 20.0;
 const FontWeight drawerHeaderTextFontWeight = FontWeight.bold;
@@ -110,10 +116,14 @@ const Map<String, dynamic> defaultThemeParams = {
   'closeButtonPlacement': closeButtonPlacement,
   'shadColorSchemeName': shadColorSchemeName,
   'drawerHeaderLogoPath': drawerHeaderLogoPath,
+  'drawerHeaderLogoHeight': drawerHeaderLogoHeight,
+  'drawerHeaderLogoWidth': drawerHeaderLogoWidth,
   'drawerHeaderText': drawerHeaderText,
   'drawerHeaderTextFontSize': drawerHeaderTextFontSize,
   'drawerHeaderTextFontWeight': drawerHeaderTextFontWeight,
   'appBarLogoPath': appBarLogoPath,
+  'appBarLogoHeight': appBarLogoHeight,
+  'appBarLogoWidth': appBarLogoWidth,
   'appBarTitleText': appBarTitleText,
   'appBarTitleTextFontSize': appBarTitleTextFontSize,
   'appBarTitleTextFontWeight': appBarTitleTextFontWeight,

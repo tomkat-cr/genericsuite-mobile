@@ -271,7 +271,11 @@ class _AppDrawerState extends State<AppDrawer> {
           color: appCallables.getThemeParams()['drawerBarBackgroundColor'],
         ),
         child: drawerHeaderLogoPath.isNotEmpty
-            ? Image.asset(drawerHeaderLogoPath, height: 250, width: 250)
+            ? Image.asset(
+                drawerHeaderLogoPath,
+                height: appCallables.getThemeParams()['drawerHeaderLogoHeight'],
+                width: appCallables.getThemeParams()['drawerHeaderLogoWidth'],
+              )
             : drawerHeaderText.isNotEmpty
             ? Text(
                 drawerHeaderText,

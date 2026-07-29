@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'app_drawer.dart';
 
+import '../services/app_callables_super.dart';
+import '../services/locator_service.dart';
+
 class AppFrame extends StatelessWidget {
   final Function()? action;
   final bool showBackButton;
@@ -29,6 +32,18 @@ class AppFrame extends StatelessWidget {
           }
         : () => action!();
 
+    final AppCallablesSuper appCallables = appCallablesLocator
+        .get<AppCallablesSuper>();
+    String appBarLogoPath = appCallables.getThemeParams()['appBarLogoPath'];
+    double appBarLogoHeight = appCallables.getThemeParams()['appBarLogoHeight'];
+    // double appBarLogoWidth = appCallables.getThemeParams()['appBarLogoWidth'];
+
+    String appBarTitleText = appCallables.getThemeParams()['appBarTitleText'];
+    double appBarTitleTextFontSize = appCallables
+        .getThemeParams()['appBarTitleTextFontSize'];
+    FontWeight appBarTitleTextFontWeight = appCallables
+        .getThemeParams()['appBarTitleTextFontWeight'];
+
     return Scaffold(
       appBar: AppBar(
         leading: !showBackButton
@@ -40,15 +55,23 @@ class AppFrame extends StatelessWidget {
                 onPressed: backButtonAction,
               ),
         title: title != null
-            ? Text(
-                title!,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              )
-            : Image.asset(
-                'assets/images/app_logo_horizontal.png',
+            ? Text(title!, style: const TextStyle(fontWeight: FontWeight.w600))
+            : appBarLogoPath.isNotEmpty
+            ? Image.asset(
+                appBarLogoPath,
                 fit: BoxFit.contain,
-                height: 32,
-              ),
+                height: appBarLogoHeight,
+                // width: appBarLogoWidth,
+              )
+            : appBarTitleText.isNotEmpty
+            ? Text(
+                appBarTitleText,
+                style: TextStyle(
+                  fontSize: appBarTitleTextFontSize,
+                  fontWeight: appBarTitleTextFontWeight,
+                ),
+              )
+            : const SizedBox.shrink(),
       ),
       drawer: showAppMenu ? AppDrawer() : null,
       body: body,
