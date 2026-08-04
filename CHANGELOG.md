@@ -5,6 +5,19 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 
 
 
+## [Unreleased] - YYYY-MM-DD
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+### Security
+
+
 ## [0.4.0] - 2026-07-15
 
 ### Added
@@ -103,4 +116,4 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [0.0.1] - 2026-02-05
 
 ### Added
-- GenericSuite mobile for flutter package and ExampleApp template [GS-261].
+- GenericSuite mobile for Flutter package and ExampleApp template [GS-261].
