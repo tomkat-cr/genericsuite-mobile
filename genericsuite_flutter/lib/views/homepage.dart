@@ -26,10 +26,14 @@ class _HomePageState extends State<HomePage> {
   String errorCode = '';
   String infoMessage = '';
   Map<String, dynamic> userData = {};
+  late Future<Map<String, dynamic>> _homeDataFuture;
 
   @override
   void initState() {
     super.initState();
+
+    // TODO: inserted from a @claude review suggestion. Is it good to do it here?
+    _homeDataFuture = loadHomeData(true);
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       showScaffoldMessages(context);
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> {
     return AppFrame(
       body: Center(
         child: FutureBuilder(
-          future: loadHomeData(true),
+          future: _homeDataFuture,
           builder: (context, snapshot) =>
               snapshot.hasData && errorMessage.isEmpty
               ? widget.homePageBodyBuilder(userData)

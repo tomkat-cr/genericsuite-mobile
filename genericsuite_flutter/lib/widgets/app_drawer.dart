@@ -233,19 +233,29 @@ class _AppDrawerState extends State<AppDrawer> {
     super.initState();
     errorMessage = "";
     errorCode = "";
-    _loadConfig().then((result) {
-      _isLoading = false;
-      if (result == false) {
-        if (errorMessage.isEmpty) {
+    _loadConfig()
+        .then((result) {
+          _isLoading = false;
+          if (result == false) {
+            if (errorMessage.isEmpty) {
+              errorMessage = "Session expired. Please log in again.";
+              errorCode = "AD-E010";
+            }
+            _setStateAndShowMessages();
+            return false;
+          }
+          _setStateAndShowMessages();
+          return true;
+        })
+        .catchError((e) {
+          _isLoading = false;
           errorMessage = "Session expired. Please log in again.";
-          errorCode = "AD-E010";
-        }
-        _setStateAndShowMessages();
-        return false;
-      }
-      _setStateAndShowMessages();
-      return true;
-    });
+          errorCode = "AD-E020";
+          if (mounted) {
+            _setStateAndShowMessages();
+          }
+          return false;
+        });
   }
 
   /*
@@ -297,7 +307,7 @@ class _AppDrawerState extends State<AppDrawer> {
       }
       menuItems.add(
         ListTile(
-          leading: item['type'] == 'title'
+          leading: item['type'] == 'title' || item['callable'] == null
               ? null
               : Icon(item['callable']['icon']),
           title: Text(item['title']),

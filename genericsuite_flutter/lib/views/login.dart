@@ -40,6 +40,13 @@ class _LoginPageState extends State<LoginPage> {
   late AppCallablesSuper appCallables;
   String newUserJsonFileName = 'onboarding_users.json';
 
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _initMessages() {
     setState(() {
       onboardingMessage = '';
@@ -140,21 +147,31 @@ class _LoginPageState extends State<LoginPage> {
       _scheduleBindings();
       return;
     }
-    jwt = apiResponse['resultset']['token'];
+    final Map<String, dynamic>? resultset = apiResponse['resultset'];
+    if (resultset == null || resultset['token'] == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      errorMessage = invalidCredsErrorMessage;
+      errorCode = 'LP-E-045';
+      if (loginDebug) {
+        logDebug('$errorMessage\nresultset or token not found in apiResponse');
+      }
+      _scheduleBindings();
+      return;
+    }
+    jwt = resultset['token'];
     errorMessage = '';
     if (jwt.isNotEmpty) {
       await storage.write(key: 'jwt', value: jwt);
 
-      apiResponse['resultset'].remove('token');
-      if (apiResponse['resultset'].containsKey('_id')) {
-        apiResponse['resultset']['id'] = apiResponse['resultset']['_id'];
-        apiResponse['resultset'].remove('_id');
+      resultset.remove('token');
+      if (resultset.containsKey('_id')) {
+        resultset['id'] = resultset['_id'];
+        resultset.remove('_id');
       }
 
-      await storage.write(
-        key: 'user_data',
-        value: json.encode(apiResponse['resultset']),
-      );
+      await storage.write(key: 'user_data', value: json.encode(resultset));
 
       if (context.mounted) {
         // redirectMainScreen(
@@ -216,6 +233,8 @@ class _LoginPageState extends State<LoginPage> {
       TextFormField(
         controller: _passwordController,
         obscureText: true,
+        autocorrect: false,
+        enableSuggestions: false,
         decoration: const InputDecoration(labelText: 'Password'),
       ),
       const SizedBox(height: 24.0),

@@ -14,6 +14,8 @@ const debugConfigValues = false;
 
 const useServerLog = true;
 
+const httpCallTimeout = Duration(seconds: 30);
+
 class HttpUtilities {
   HttpUtilities();
 
@@ -66,7 +68,8 @@ class HttpUtilities {
       if (getParams.isNotEmpty) {
         url += '?';
         getParams.forEach((key, value) {
-          url += '$key=${Uri.encodeComponent(value.toString())}&';
+          url +=
+              '${Uri.encodeComponent(key)}=${Uri.encodeComponent(value.toString())}&';
         });
         // Remove the last '&' or replace with a more efficient method
         url = url.substring(0, url.length - 1);
@@ -103,35 +106,29 @@ class HttpUtilities {
       try {
         switch (requestType.toLowerCase()) {
           case "get":
-            response = await http.get(urlParsed, headers: requestHeaders);
+            response = await http
+                .get(urlParsed, headers: requestHeaders)
+                .timeout(httpCallTimeout);
             break;
           case "post":
-            response = await http.post(
-              urlParsed,
-              headers: requestHeaders,
-              body: jsonPayload,
-            );
+            response = await http
+                .post(urlParsed, headers: requestHeaders, body: jsonPayload)
+                .timeout(httpCallTimeout);
             break;
           case "put":
-            response = await http.put(
-              urlParsed,
-              headers: requestHeaders,
-              body: jsonPayload,
-            );
+            response = await http
+                .put(urlParsed, headers: requestHeaders, body: jsonPayload)
+                .timeout(httpCallTimeout);
             break;
           case "delete":
-            response = await http.delete(
-              urlParsed,
-              headers: requestHeaders,
-              body: jsonPayload,
-            );
+            response = await http
+                .delete(urlParsed, headers: requestHeaders, body: jsonPayload)
+                .timeout(httpCallTimeout);
             break;
           case "patch":
-            response = await http.patch(
-              urlParsed,
-              headers: requestHeaders,
-              body: jsonPayload,
-            );
+            response = await http
+                .patch(urlParsed, headers: requestHeaders, body: jsonPayload)
+                .timeout(httpCallTimeout);
             break;
           default:
             logErrorMessage =
@@ -167,7 +164,23 @@ class HttpUtilities {
 
       Map<String, dynamic> result;
       if (response.statusCode == 200 || response.statusCode == 201) {
-        result = json.decode(response.body);
+        try {
+          result = json.decode(response.body);
+        } catch (e) {
+          logErrorMessage =
+              'HttpUtilities | httpsCall | Error [3]: $e | response.body: ${response.body}';
+          if (useServerLog) {
+            await logError(logErrorMessage, 'HC-E030');
+          } else {
+            logErrorRaw(logErrorMessage);
+          }
+          return {
+            "error": true,
+            "error_message": getApiErrorMessage('internalError'),
+            "status_code": response.statusCode,
+            "resultset": {},
+          };
+        }
       } else {
         String errorMessage = "";
         try {
@@ -225,9 +238,9 @@ String getApiDataResponse(AsyncSnapshot snapshot) {
   return apiResponse['resultset'].toString();
 }
 
-String bToA(str) {
-  final bytes = utf8.encode(str);
-  final base64Str = base64.encode(bytes);
+String bToA(String str) {
+  final List<int> bytes = utf8.encode(str);
+  final String base64Str = base64.encode(bytes);
   return base64Str;
 }
 
@@ -239,7 +252,7 @@ Map<String, dynamic> getJwtPayload(String jwtTokenRaw) {
   Map<String, dynamic> jwtPayload = {};
   if (jwt.length == 3) {
     jwtPayload = json.decode(
-      ascii.decode(base64.decode(base64.normalize(jwt[1]))),
+      utf8.decode(base64.decode(base64.normalize(jwt[1]))),
     );
   }
   return jwtPayload;

@@ -223,10 +223,13 @@ Map<String, dynamic> buildChildRowToSave({
   }
 
   // Parent id field name(s) and value(s), from endpointKeyNames + parentData
+  final Map<String, dynamic> parentData = Map<String, dynamic>.from(
+    editorConfig['parentData'] ?? const {},
+  );
   final Map<String, dynamic> parentKeys = {};
   for (final keyPair in (editorConfig['endpointKeyNames'] as List)) {
     parentKeys[keyPair['parameterName']] =
-        editorConfig['parentData'][keyPair['parentElementName']];
+        parentData[keyPair['parentElementName']];
   }
 
   if (editorConfig['subType'] == 'array') {

@@ -338,10 +338,17 @@ class CreateGsAppState extends State<CreateGsApp> {
                 if (jwt.length != 3) {
                   return LoginPage(params: loginInitialParams);
                 } else {
-                  var payload = getJwtPayload(jwtStr);
-                  if (DateTime.fromMillisecondsSinceEpoch(
-                    payload["exp"] * 1000,
-                  ).isAfter(DateTime.now())) {
+                  Map<String, dynamic> payload;
+                  try {
+                    payload = getJwtPayload(jwtStr);
+                  } catch (e) {
+                    payload = {};
+                  }
+                  final exp = payload["exp"];
+                  if (exp is num &&
+                      DateTime.fromMillisecondsSinceEpoch(
+                        (exp * 1000).toInt(),
+                      ).isAfter(DateTime.now())) {
                     return appCallables.mainScreenWidget();
                   } else {
                     return LoginPage(params: loginInitialParams);

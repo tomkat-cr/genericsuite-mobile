@@ -7,6 +7,9 @@ final GetIt storageLocator = GetIt.instance;
 
 void setupStorageLocator([FlutterSecureStorage? storage]) {
   // Register a lazy singleton (created only when first used)
+  if (storageLocator.isRegistered<FlutterSecureStorage>()) {
+    return;
+  }
   storageLocator.registerLazySingleton(() => storage ?? FlutterSecureStorage());
 }
 
@@ -22,6 +25,9 @@ final storage = locator<FlutterSecureStorage>();
 final GetIt appCallablesLocator = GetIt.instance;
 
 void setupAppCallablesLocator(AppCallablesSuper appCallables) {
+  if (appCallablesLocator.isRegistered<AppCallablesSuper>()) {
+    return;
+  }
   appCallablesLocator.registerLazySingleton(() => appCallables);
 }
 

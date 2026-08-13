@@ -16,9 +16,26 @@ Map<String, dynamic> routeItem(
   if (item['type'] == 'widget' &&
       (item['callable']['widget'] != null ||
           item['callable']['function'] != null)) {
-    Navigator.pop(context); // Close the drawer
     if (item['callable']['function'] != null) {
-      item['callable']['function'](context);
+      Navigator.pop(context); // Close the drawer
+      if (item['callable']['type'] != null &&
+          item['callable']['type'] == 'sync') {
+        // Sync function
+        item['callable']['function'](context);
+      } else {
+        // Async function. E.g. logOut(context)
+        item['callable']['function'](context)
+            .then((value) {
+              // Do nothing
+              return result;
+            })
+            .catchError((error) {
+              result['errorMessage'] =
+                  "Error calling function: ${error.toString()}";
+              result['errorCode'] = "AD-E030";
+              return result;
+            });
+      }
     } else {
       Navigator.push(
         context,

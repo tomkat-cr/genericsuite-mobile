@@ -10,7 +10,7 @@ class ButtonBack extends StatelessWidget {
         if (Navigator.canPop(context)) {
           Navigator.of(context).pop();
         } else {
-          Navigator.of(context, rootNavigator: true).pop(context);
+          Navigator.of(context, rootNavigator: true).pop();
         }
       },
       child: const Text('Back'),

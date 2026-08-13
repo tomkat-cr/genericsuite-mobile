@@ -104,17 +104,23 @@ class PasswordField extends StatefulWidget {
 
 class _PasswordFieldState extends State<PasswordField> {
   bool _obscureText = true;
-  String _value = '';
+  late final TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     if (gceFsDebug) {
       logDebug(
-        ">> INIT fieldName: ${widget.config['name']} | _value: ${widget.value}",
+        ">> INIT fieldName: ${widget.config['name']} | value: ${widget.value}",
       );
     }
-    _value = widget.value;
+    _controller = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -123,7 +129,7 @@ class _PasswordFieldState extends State<PasswordField> {
     return TextFormField(
       key: ValueKey(fieldName),
       obscureText: _obscureText,
-      controller: TextEditingController(text: _value),
+      controller: _controller,
       decoration: InputDecoration(
         labelText: widget.config['label'],
         // border: const OutlineInputBorder(),
@@ -133,7 +139,7 @@ class _PasswordFieldState extends State<PasswordField> {
             // Update the state to show or hide the password
             if (gceFsDebug) {
               logDebug(
-                ">> fieldName: $fieldName | _obscureText: $_obscureText | _value: $_value",
+                ">> fieldName: $fieldName | _obscureText: $_obscureText",
               );
             }
             setState(() {
@@ -152,7 +158,6 @@ class _PasswordFieldState extends State<PasswordField> {
         return null;
       },
       onChanged: (value) {
-        _value = value;
         widget.onSaved(value);
       },
     );
@@ -190,6 +195,23 @@ class DataFormBody extends StatefulWidget {
 }
 
 class _DataFormBodyState extends State<DataFormBody> {
+  final Map<String, TextEditingController> _controllers = {};
+
+  /// Reuses a persistent, per-field controller instead of creating a new
+  /// one on every build (which leaks the old controller and resets the
+  /// cursor/focus). Only updates the text when it actually differs from
+  /// what's displayed, so in-progress typing isn't clobbered by rebuilds.
+  TextEditingController _controllerFor(String fieldName, String text) {
+    final controller = _controllers.putIfAbsent(
+      fieldName,
+      () => TextEditingController(text: text),
+    );
+    if (controller.text != text) {
+      controller.text = text;
+    }
+    return controller;
+  }
+
   Future _selectDate(String value, Function onSaved) async {
     DateTime initialValue;
     try {
@@ -216,7 +238,7 @@ class _DataFormBodyState extends State<DataFormBody> {
   Widget _erroredComponentWidget(String label, String text, String fieldName) {
     return TextFormField(
       key: ValueKey(fieldName),
-      controller: TextEditingController(text: text),
+      controller: _controllerFor(fieldName, text),
       decoration: InputDecoration(
         labelText: label,
         filled: true,
@@ -307,7 +329,7 @@ class _DataFormBodyState extends State<DataFormBody> {
           formFields.add(
             TextFormField(
               key: ValueKey(fieldName),
-              controller: TextEditingController(text: fieldElementValue),
+              controller: _controllerFor(fieldName, fieldElementValue),
               decoration: InputDecoration(
                 labelText: fieldElement['label'],
                 // border: const OutlineInputBorder(),
@@ -331,7 +353,10 @@ class _DataFormBodyState extends State<DataFormBody> {
                 return null;
               },
               onChanged: (value) {
-                widget.selectedItem[fieldName] = double.parse(value);
+                final parsed = double.tryParse(value);
+                if (parsed != null) {
+                  widget.selectedItem[fieldName] = parsed;
+                }
               },
               onSaved: (value) =>
                   widget.selectedItem[fieldName] = double.parse(value!),
@@ -343,7 +368,7 @@ class _DataFormBodyState extends State<DataFormBody> {
           formFields.add(
             TextFormField(
               key: ValueKey(fieldName),
-              controller: TextEditingController(text: fieldElementValue),
+              controller: _controllerFor(fieldName, fieldElementValue),
               decoration: InputDecoration(
                 labelText: fieldElement['label'],
                 // border: const OutlineInputBorder(),
@@ -364,7 +389,10 @@ class _DataFormBodyState extends State<DataFormBody> {
                 return null;
               },
               onChanged: (value) {
-                widget.selectedItem[fieldName] = int.parse(value);
+                final parsed = int.tryParse(value);
+                if (parsed != null) {
+                  widget.selectedItem[fieldName] = parsed;
+                }
               },
               onSaved: (value) =>
                   widget.selectedItem[fieldName] = int.parse(value!),
@@ -377,7 +405,7 @@ class _DataFormBodyState extends State<DataFormBody> {
           formFields.add(
             TextFormField(
               key: ValueKey(fieldName),
-              controller: TextEditingController(text: fieldElementValue),
+              controller: _controllerFor(fieldName, fieldElementValue),
               decoration: InputDecoration(
                 labelText: fieldElement['label'],
                 // border: const OutlineInputBorder(),
@@ -415,7 +443,7 @@ class _DataFormBodyState extends State<DataFormBody> {
                   )
                 : TextFormField(
                     key: ValueKey(fieldName),
-                    controller: TextEditingController(text: fieldElementValue),
+                    controller: _controllerFor(fieldName, fieldElementValue),
                     decoration: InputDecoration(
                       labelText: fieldElement['label'],
                       // border: const OutlineInputBorder(),
@@ -457,8 +485,9 @@ class _DataFormBodyState extends State<DataFormBody> {
             formFields.add(
               TextFormField(
                 key: ValueKey(fieldName),
-                controller: TextEditingController(
-                  text: getSelectOptionLabel(selectElements, fieldElementValue),
+                controller: _controllerFor(
+                  fieldName,
+                  getSelectOptionLabel(selectElements, fieldElementValue),
                 ),
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
@@ -473,7 +502,9 @@ class _DataFormBodyState extends State<DataFormBody> {
               DropdownButtonFormField<String>(
                 key: ValueKey(fieldName),
                 isExpanded: true,
-                initialValue: fieldElementValue,
+                initialValue: selectElements.containsKey(fieldElementValue)
+                    ? fieldElementValue
+                    : null,
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                   // border: const OutlineInputBorder(),
@@ -497,8 +528,9 @@ class _DataFormBodyState extends State<DataFormBody> {
             formFields.add(
               TextFormField(
                 key: ValueKey(fieldName),
-                controller: TextEditingController(
-                  text: getSelectOptionLabel(selectElements, fieldElementValue),
+                controller: _controllerFor(
+                  fieldName,
+                  getSelectOptionLabel(selectElements, fieldElementValue),
                 ),
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
@@ -511,7 +543,9 @@ class _DataFormBodyState extends State<DataFormBody> {
             formFields.add(
               DropdownButtonFormField<String>(
                 key: ValueKey(fieldName),
-                initialValue: fieldElementValue,
+                initialValue: selectElements.containsKey(fieldElementValue)
+                    ? fieldElementValue
+                    : null,
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                   // border: const OutlineInputBorder(),
@@ -542,7 +576,7 @@ class _DataFormBodyState extends State<DataFormBody> {
             formFields.add(
               TextFormField(
                 key: ValueKey(fieldName),
-                controller: TextEditingController(text: descriptionText),
+                controller: _controllerFor(fieldName, descriptionText),
                 decoration: InputDecoration(
                   labelText: fieldElement['label'],
                 ),
@@ -656,7 +690,7 @@ class _DataFormBodyState extends State<DataFormBody> {
           formFields.add(
             TextFormField(
               key: ValueKey(fieldName),
-              controller: TextEditingController(text: fieldElementValue),
+              controller: _controllerFor(fieldName, fieldElementValue),
               decoration: InputDecoration(
                 labelText: fieldElement['label'],
                 // border: const OutlineInputBorder(),
@@ -751,6 +785,9 @@ class _DataFormBodyState extends State<DataFormBody> {
 
   @override
   void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 

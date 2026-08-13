@@ -18,22 +18,60 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Security
 
 
-## [0.4.0] - 2026-07-15
+## [0.5.0] - 2026-07-15
 
 ### Added
 - `childComponents` (1-N relationships) support in the Flutter CRUD Editor: child components declared in the frontend JSON config render as tappable sections in the edit form, open full-screen with the parent row as `parentData`, and support `child_listing` editors with `array` and `table` subtypes (including the `<array_name>`/`<array_name>_old` write payloads), matching the genericsuite-fe CRUD Editor behavior [GS-261].
 - Apple-clean theme tokens in `theme_config_defaults.dart` (`accentColor`, `borderRadius` 12px, `fontFamily`/`textTheme` typography tokens with Inter via google_fonts, near-black `textColor`, iOS system semantic colors) plus a `defaultThemeParams` merge contract so apps override only the keys they need [GS-261].
 - `shadcn_ui` (flutter-shadcn-ui port) now owns the widget-tree root via `ShadApp.custom`; `CreateGsApp` builds the MaterialApp theme from the GenericSuite tokens; Save/Cancel form buttons use ShadButton [GS-261].
 - `buildGsShadTheme()` builds `ShadThemeData` from GenericSuite theme tokens; new `shadColorSchemeName` theme param selects the shadcn base scheme (`green` default; any `ShadColorScheme.fromName` value), with `accentColor` overriding `primary`/`ring` and GS surface/text/error tokens applied via `copyWith` [GS-261].
+- "lint" and "test" commands to Makefile.
+- Test coverage for the project [GS-327].
 
 ### Changed
 - Default accent color changed from blue to green; app bar and drawer default to white surfaces with near-black text; genericsuite_flutter version bumped to 0.5.0 [GS-261].
+
+### Fixed
+- http_service.dart: 
+  1. getJwtPayload uses ascii.decode(...) instead of utf8.decode(...) to decode the JWT payload. Any claim with non-ASCII characters throws FormatException, breaking login-gate checks, loadConfig(), and current_user_service.dart.
+  2. No .timeout(...) on any http.get/post/put/delete/patch call (unlike ip_address_service.dart, which correctly uses one), so a hung connection stalls the caller indefinitely.
+  3. The 200/201 success path (json.decode(response.body) also has no try/catch, unlike the error branch. Debug flags (debugJwtToken, debugConfigValues) would print full JWTs/API keys if ever flipped on (currently const false, compiled out); query-string builder encodes values but not keys.
+  4. Add type annotations to bToA(str).
+- create_gs_app.dart: payload["exp"] * 1000 has no null-check; a token whose payload lacks exp (or a malformed token where getJwtPayload returns {}) throws synchronously in build(), crashing app startup instead of falling back to LoginPage. Verified by direct read.
+- crud_editor.dart:
+  1. _saveItem: when isCreation && editorConfig['createReenter'] is true after a successful save, the method returns without calling setState(); _isLoading was flipped to true via setState but is reset with a bare assignment, so the loading spinner can stick indefinitely.
+  2. No mounted checks after await before setState/_setStateAndShowMessages calls (e.g. in _buildListItem's onTap, initState's _loadConfig().then); navigating away mid-request can throw "setState() called after dispose()".
+  3. json.decode(localApiResp['resultset']) in _loadSelectedItem has no try/catch unlike the equivalent in _loadItems, and int.parse(...['rows_affected']) is unguarded.
+  4. _getSelectFieldsOptions — sequential await in a loop instead of Future.wait, serializing network calls unnecessarily.
+- crud_editor_commons.dart:
+  1. (buildChildRowToSave): indexes editorConfig['parentData'][keyPair['parentElementName']] with no null check.
+  2. parentData can be empty/missing (e.g. _setEndpointFilter silently no-ops), so saving/deleting on a child_listing editor can throw NoSuchMethodError.
+- form_field_service.dart:
+  1. select and select_component cases set DropdownButtonFormField.initialValue without checking the value exists among items, unlike the select_table case which correctly guards with containsKey(...) ? value : null.
+  2. Stale/edited data crashes the form on open. Number/integer fields call double.parse/int.parse directly in onChanged on every keystroke; clearing the field or typing ./- throws uncaught FormatException while typing.
+  3. TextEditingController(text: ...) is instantiated inline in build() for most field types and never disposed (e.g. L126, 219, 310, 346, 380, 419, 545, 594, 659); every rebuild leaks the old controller and resets cursor/focus for all fields on screen.
+- app_drawer.dart:
+  1. Icon(item['callable']['icon']) throws if item['element'] isn't a key in callables; no fallback/guard.
+  2. _loadConfig().then(...) has no error handling; exceptions become unhandled async errors instead of showing the drawer's error UI.
+- error_reporter_widget.dart: ScaffoldMessenger.of(context).showSnackBar(...) is called synchronously inside build(). Verified by direct read — this is a known Flutter anti-pattern (mutating overlay state during build) and should be deferred via addPostFrameCallback, as homepage.dart does elsewhere.
+- login.dart:
+  1. _usernameController/_passwordController are created but the widget has no dispose() override, leaking both TextEditingControllers.
+  2. apiResponse['resultset']['token'] is accessed with no null-check on resultset. "password" field lacks autocorrect: false / enableSuggestions: false.
+- current_user_service.dart: if (data['error'] == 'Not Found') can never be true since http_service.dart always sets error to a bool; this branch is dead code.
+- logout_service.dart: storage.delete(...) calls for jwt/api_key/user_data aren't awaited before navigating away; app kill right after logout can leave stale credentials in secure storage.
+- routing_services.dart: Added item['callable']['type'] = 'async' (default) | 'sync' to allow sync/async function calls and handle code change made to logout_service.dart.
+- locator_service.dart: registerLazySingleton has no isRegistered guard; re-invoking setup (hot restart, remount, tests) throws on duplicate registration.
+- timestamp_utilities.dart: 12-hour formatting doesn't special-case midnight; hour 0 renders as "0:MM AM" instead of "12:MM AM".
+- homepage.dart: loadHomeData(true) called directly as the FutureBuilder's future: inside build() re-triggers the API call on every rebuild before data is loaded.
+- deviceid_service.dart: implicit ordering dependency on setupStorageLocator() having run first.
+- back_button.dart: Navigator.of(context, rootNavigator: true).pop(context) passing context as the pop result looks unintentional.
+[GS-327]
 
 ### Removed
 - `flutter_project_template` directory. Use [genericsuite-mobile-exampleapp](https://github.com/tomkat-cr/genericsuite-mobile-exampleapp) instead [GS-261].
 
 
-## [0.3.2] - 2026-04-20
+## [0.4.2] - 2026-04-20
 
 ### Added
 - AGENTS.md, GEMINI.md, and CLAUDE.md files to provide context and instructions to AI Coding Assistants [GS-303].
@@ -47,6 +85,23 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 
 ### Fixes
 - Improve error handling in create_gs_app.dart and ip_address_service.dart for better stability and fix Flutter web deployment to bootstrap [GS-252].
+
+
+## [0.4.1] - 2026-02-15
+
+### Added
+- Implement `getStorage` method in `AppCallablesSuper` to provide a customizable `FlutterSecureStorage` instance [GS-261].
+
+
+## [0.4.0] - 2026-02-14
+
+### Added
+- Add `devtools_options.yaml` to the project [GS-261].
+- Add `newUserJsonFileName` parameter in `login.dart` "params" map so the "onboarding_users.json" configuration can be customized [GS-261].
+
+### Changed
+- Rename `locator` to `storageLocator` for `FlutterSecureStorage` access [GS-261].
+- Update widget key syntax on autocomplete_service.dart and form_field_service.dart [GS-261].
 
 
 ## [0.3.1] - 2026-02-13

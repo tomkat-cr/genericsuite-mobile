@@ -64,6 +64,7 @@ class AppCallablesSuper {
     //   "|about|": {"widget": () => About(), "icon": Icons.info, "args": {}},
     //   "logout": {
     //     "function": (context) => logOut(context),
+    //     // "type": "sync" || "async" (default),
     //     "icon": Icons.logout,
     //     "args": {}
     //   },

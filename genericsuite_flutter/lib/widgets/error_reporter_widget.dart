@@ -13,9 +13,12 @@ class ErrorReporter extends StatelessWidget {
   Widget build(BuildContext context) {
     var errorMessage = "Error: $message";
     if (showScaffold) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      });
       return const Text('');
     } else {
       return Column(children: <Widget>[const ButtonBack(), Text(errorMessage)]);

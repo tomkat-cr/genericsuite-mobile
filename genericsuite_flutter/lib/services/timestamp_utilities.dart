@@ -32,7 +32,7 @@ String timestampToDate({
   int minutes = date.minute;
   String ampm = hours >= 12 ? 'PM' : 'AM';
   String formattedTime =
-      '${(hours > 12 ? hours - 12 : hours).toString()}'
+      '${(hours == 0 ? 12 : (hours > 12 ? hours - 12 : hours)).toString()}'
       ':'
       '${(minutes < 10 ? '0' : '')}'
       '${minutes.toString()}'

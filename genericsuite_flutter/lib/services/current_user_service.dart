@@ -104,7 +104,8 @@ Future<Map<String, dynamic>> getCurrentUserData() {
               ).then((_) {
                 // Pass
               });
-              if (data['error'] == 'Not Found') {
+              if (data['status_code'] == 404 ||
+                  data['error_message'] == 'Not Found') {
                 return userData;
               }
               userData['error'] = true;

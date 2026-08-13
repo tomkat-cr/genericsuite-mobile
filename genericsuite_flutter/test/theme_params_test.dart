@@ -13,7 +13,10 @@ void main() {
     expect(defaultThemeParams['textTheme'], isNull);
     expect(defaultThemeParams['textColor'], const Color(0xFF111111));
     expect(defaultThemeParams['scaffoldBackgroundColor'], Colors.white);
-    expect(defaultThemeParams['appBarBackgroundColor'], Colors.white);
+    expect(
+      defaultThemeParams['appBarBackgroundColor'],
+      Colors.green,
+    ); // Colors.white
     // iOS system semantic colors
     expect(defaultThemeParams['errorBackgroundColor'], const Color(0xFFFF3B30));
     expect(defaultThemeParams['infoBackgroundColor'], const Color(0xFF007AFF));

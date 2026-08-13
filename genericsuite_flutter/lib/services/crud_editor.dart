@@ -91,6 +91,7 @@ class CrudEditorState extends State<CrudEditor> {
    * Set the state and schedule show messages
    */
   void _setStateAndShowMessages() {
+    if (!mounted) return;
     _scheduleBindings();
     setState(() {});
   }
@@ -102,6 +103,7 @@ class CrudEditorState extends State<CrudEditor> {
    */
   Future<Map<String, dynamic>> _getSelectFieldsOptions() async {
     Map<String, dynamic> response = {};
+    final List<Future<void>> pendingFetches = [];
     for (var currentObj in editorConfig['fieldElements']) {
       if (currentObj['type'] == 'select_component' &&
           currentObj.containsKey('dataPopulator')) {
@@ -122,28 +124,33 @@ class CrudEditorState extends State<CrudEditor> {
             'select_table_${currentObj['related_table']}_'
             '${currentObj['related_key'] ?? '_id'}_'
             '${jsonEncode(currentObj['related_filter'] ?? {})}';
-        await genericSelectGenerator(
-          dbApiUrl: currentObj['related_table'],
-          selectName: selectName,
-          dbFilter: currentObj['related_filter'] != null
-              ? Map<String, dynamic>.from(currentObj['related_filter'])
-              : null,
-          descriptionFields:
-              currentObj['description_fields'] ?? const ['name'],
-        );
-        // Use the raw cached rows (populated by genericSelectGenerator,
-        // whether from the API or from a previous cache hit) so both
-        // default and custom (related_key / description_separator)
-        // attributes are covered by a single code path. If the cache
-        // wasn't populated (e.g. an error occurred), fall back to {}.
-        final rawRows = SelectCache.get(selectName);
-        response[currentObj['name']] = {
-          'promiseResult': rawRows is List<dynamic>
-              ? buildSelectTableDescriptionMap(rawRows, currentObj)
-              : <String, dynamic>{},
-        };
+        pendingFetches.add(() async {
+          await genericSelectGenerator(
+            dbApiUrl: currentObj['related_table'],
+            selectName: selectName,
+            dbFilter: currentObj['related_filter'] != null
+                ? Map<String, dynamic>.from(currentObj['related_filter'])
+                : null,
+            descriptionFields:
+                currentObj['description_fields'] ?? const ['name'],
+          );
+          // Use the raw cached rows (populated by genericSelectGenerator,
+          // whether from the API or from a previous cache hit) so both
+          // default and custom (related_key / description_separator)
+          // attributes are covered by a single code path. If the cache
+          // wasn't populated (e.g. an error occurred), fall back to {}.
+          final rawRows = SelectCache.get(selectName);
+          response[currentObj['name']] = {
+            'promiseResult': rawRows is List<dynamic>
+                ? buildSelectTableDescriptionMap(rawRows, currentObj)
+                : <String, dynamic>{},
+          };
+        }());
         continue;
       }
+    }
+    if (pendingFetches.isNotEmpty) {
+      await Future.wait(pendingFetches);
     }
     return response;
   }
@@ -671,12 +678,14 @@ class CrudEditorState extends State<CrudEditor> {
             if (result) {
               if (isEditModeForced) {
                 _loadSelectedItem(itemIdForced).then((result) {
+                  if (!mounted) return true;
                   setState(() {
                     selectedItem = result;
                   });
                   return true;
                 });
               } else if (isCreationForced) {
+                if (!mounted) return true;
                 setState(() {
                   selectedItem = _getEmptyItem();
                   originalSelectedItem = {};
@@ -710,9 +719,11 @@ class CrudEditorState extends State<CrudEditor> {
     dynamic bodyParams,
     Map<String, dynamic> getParams,
   ) async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     HttpUtilities api = HttpUtilities();
     Map<String, dynamic> body = bodyParams.cast<String, dynamic>();
     if (gceMainDebug) {
@@ -730,7 +741,11 @@ class CrudEditorState extends State<CrudEditor> {
     if (gceMainDebug) {
       logDebug('CRUD | _runApiCall | localApiResp: $localApiResp');
     }
-    _isLoading = false;
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
     return localApiResp;
   }
 
@@ -1225,7 +1240,20 @@ class CrudEditorState extends State<CrudEditor> {
     }
 
     // Load item from the API response
-    Map<String, dynamic> itemData = json.decode(localApiResp['resultset']);
+    Map<String, dynamic> itemData;
+    try {
+      itemData = json.decode(localApiResp['resultset']);
+    } catch (e, stackTrace) {
+      errorMessage = "Error loading item";
+      errorCode = "FGCE-LSI-E025";
+      await logError(
+        'CRUD | _loadSelectedItem | ERROR doing json.decode / localApiResp: $localApiResp'
+        '\nError Trace:\n${stackTrace.toString()}',
+        errorCode,
+      );
+      _setStateAndShowMessages();
+      return {};
+    }
     isEditMode = editorConfig['createReenter'] && isCreation ? true : false;
     isCreation = false;
     if (gceMainDebug) {
@@ -1401,7 +1429,12 @@ class CrudEditorState extends State<CrudEditor> {
     }
 
     // If no rows were updated, show error
-    if (int.parse(localApiResp['resultset']['rows_affected']) < 1) {
+    final int rowsAffected =
+        int.tryParse(
+          localApiResp['resultset']['rows_affected']?.toString() ?? '',
+        ) ??
+        0;
+    if (rowsAffected < 1) {
       items = originalItems;
       errorMessage =
           "${localApiResp['resultset']['rows_affected']} rows updated";
@@ -1451,6 +1484,7 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (isCreation && editorConfig['createReenter']) {
       // Stay in FormData
+      _setStateAndShowMessages(); // TODO: inserted from a @claude review suggestion. Is it necessary?
       return;
     }
 
@@ -1634,8 +1668,8 @@ class CrudEditorState extends State<CrudEditor> {
       String name = _getColumnName(i);
       if (i < listingFieldElements.length &&
           listingFieldElements[i]['type'] == 'select_table') {
-        line += '${item['${name}_description'] ??
-            _selectTableFallbackDescription(name, item) ?? item[name]} ';
+        line +=
+            '${item['${name}_description'] ?? _selectTableFallbackDescription(name, item) ?? item[name]} ';
       } else {
         line += '${item[name]} ';
       }
@@ -1767,7 +1801,9 @@ class CrudEditorState extends State<CrudEditor> {
         // Show error message without waiting for OK
         errorWaitForOk = false;
       }
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
