@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /*
- * Child components support for the Flutter CRUD Editor.
+ * Child components support for the Flutter CRUD Editor (1-N relations).
  *
  * Mirrors genericsuite-fe's iterateChildComponents()
  * (generic.editor.rfc.formpage.jsx): each name in the JSON config's
@@ -21,10 +21,8 @@ typedef ChildComponentBuilder =
 /*
  * 'UsersFoodTimes' -> 'Users Food Times'
  */
-String childComponentLabel(String name) => name.replaceAllMapped(
-  RegExp(r'(?<=[a-z0-9])(?=[A-Z])'),
-  (m) => ' ',
-);
+String childComponentLabel(String name) =>
+    name.replaceAllMapped(RegExp(r'(?<=[a-z0-9])(?=[A-Z])'), (m) => ' ');
 
 /*
  * Build one tappable navigation section per child component.

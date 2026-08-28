@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -12,7 +10,17 @@ import 'theme_config_defaults.dart';
 import 'utilities.dart';
 
 const gceFsDebug = false;
-const useScrollableTextField = false;
+const gceFsUseScrollableTextField = false;
+
+bool isValidCustomDateFormat(String dateStr, String pattern) {
+  try {
+    final format = DateFormat(pattern);
+    format.parseStrict(dateStr);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 class ScrollableTextField extends StatefulWidget {
   final Map<String, dynamic> config;
@@ -191,11 +199,23 @@ class DataFormBody extends StatefulWidget {
   });
 
   @override
-  State<DataFormBody> createState() => _DataFormBodyState();
+  State<DataFormBody> createState() => DataFormBodyState();
 }
 
-class _DataFormBodyState extends State<DataFormBody> {
+class DataFormBodyState extends State<DataFormBody> {
   final Map<String, TextEditingController> _controllers = {};
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  /// Validate and persist field values, then call [DataFormBody.saveItem].
+  /// Used by the in-form Save button and the AppBar popup menu so both
+  /// paths send the values currently on screen, not the row as loaded.
+  bool submit() {
+    final FormState? form = _formKey.currentState;
+    if (form == null || !form.validate()) return false;
+    form.save();
+    widget.saveItem(widget.selectedItem);
+    return true;
+  }
 
   /// Reuses a persistent, per-field controller instead of creating a new
   /// one on every build (which leaks the old controller and resets the
@@ -257,7 +277,6 @@ class _DataFormBodyState extends State<DataFormBody> {
    * Build the data form body
    */
   Widget _buildDataFormBody() {
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     List<Widget> formFields = [];
 
     for (var fieldElement in widget.editorConfig['fieldElements']) {
@@ -402,6 +421,20 @@ class _DataFormBodyState extends State<DataFormBody> {
 
         case 'date':
         case 'datetime-local':
+          try {
+            DateTime.parse(fieldElementValue);
+
+            if (!isValidCustomDateFormat(
+              fieldElementValue,
+              'yyyy-MM-dd HH:mm:ss',
+            )) {
+              fieldElementValue = DateTime.now().toString().split('.')[0];
+            }
+          } catch (_) {
+            // ignore: unused_local_variable
+            fieldElementValue = DateTime.now().toString().split('.')[0];
+          }
+
           formFields.add(
             TextFormField(
               key: ValueKey(fieldName),
@@ -417,8 +450,12 @@ class _DataFormBodyState extends State<DataFormBody> {
                     (value == null || value.isEmpty || value.trim().isEmpty)) {
                   return 'This field is required';
                 }
-                if (value != null && DateTime.tryParse(value) == null) {
-                  return 'Please enter a valid date';
+                if (value != null) {
+                  try {
+                    DateTime.parse(value);
+                  } catch (e) {
+                    return 'Please enter a valid date (YYYY-MM-DD HH:MM:SS)';
+                  }
                 }
                 return null;
               },
@@ -435,7 +472,7 @@ class _DataFormBodyState extends State<DataFormBody> {
 
         case 'textarea':
           formFields.add(
-            useScrollableTextField
+            gceFsUseScrollableTextField
                 ? ScrollableTextField(
                     config: fieldElement,
                     value: fieldElementValue,
@@ -564,22 +601,19 @@ class _DataFormBodyState extends State<DataFormBody> {
 
         case 'select_table':
           Map<String, dynamic> selectElements = Map<String, dynamic>.from(
-            widget.editorConfig['selectFieldsOptionsPromises']?[fieldName]
-                    ?['promiseResult'] ??
+            widget.editorConfig['selectFieldsOptionsPromises']?[fieldName]?['promiseResult'] ??
                 {},
           );
           if (readOnly) {
             final String descAttr = '${fieldName}_description';
             final String descriptionText =
                 widget.selectedItem[descAttr]?.toString() ??
-                    getSelectOptionLabel(selectElements, fieldElementValue);
+                getSelectOptionLabel(selectElements, fieldElementValue);
             formFields.add(
               TextFormField(
                 key: ValueKey(fieldName),
                 controller: _controllerFor(fieldName, descriptionText),
-                decoration: InputDecoration(
-                  labelText: fieldElement['label'],
-                ),
+                decoration: InputDecoration(labelText: fieldElement['label']),
                 readOnly: true,
               ),
             );
@@ -591,9 +625,7 @@ class _DataFormBodyState extends State<DataFormBody> {
                 initialValue: selectElements.containsKey(fieldElementValue)
                     ? fieldElementValue
                     : null,
-                decoration: InputDecoration(
-                  labelText: fieldElement['label'],
-                ),
+                decoration: InputDecoration(labelText: fieldElement['label']),
                 items: putSelectOptionsFromArray(
                   selectElements: selectElements,
                 ),
@@ -654,18 +686,27 @@ class _DataFormBodyState extends State<DataFormBody> {
             SuggestionDropdown(
               config: fieldElement,
               value: fieldElementValue,
-              onSelected: (value) {
-                Map<String, dynamic> valueMap = Map<String, dynamic>.from(
-                  jsonDecode(value),
+              onChanged: (value) {
+                applySuggestionTypedValue(
+                  widget.selectedItem,
+                  fieldName,
+                  value,
                 );
-                if (valueMap.isNotEmpty) {
-                  if (valueMap[fieldElement['suggestion_desc_fieldname']]
-                      .isNotEmpty) {
-                    for (var field in valueMap.keys) {
-                      widget.selectedItem[field] = valueMap[field];
-                    }
-                  }
-                }
+              },
+              onSaved: (value) {
+                applySuggestionTypedValue(
+                  widget.selectedItem,
+                  fieldName,
+                  value,
+                );
+              },
+              onSelected: (value) {
+                applySuggestionSelectedValue(
+                  selectedItem: widget.selectedItem,
+                  config: fieldElement,
+                  fieldName: fieldName,
+                  encodedValue: value,
+                );
               },
               setError: (value, code, waitForOk) {
                 widget.setError(value, code, waitForOk);
@@ -678,7 +719,9 @@ class _DataFormBodyState extends State<DataFormBody> {
           formFields.add(
             PasswordField(
               config: fieldElement,
-              value: fieldElementValue,
+              // value: fieldElementValue,
+              // Initial value is empty string to avoid showing the current password
+              value: '',
               onSaved: (value) {
                 widget.selectedItem[fieldName] = value!;
               },
@@ -725,15 +768,7 @@ class _DataFormBodyState extends State<DataFormBody> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ShadButton(
-              child: const Text('Save'),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  formKey.currentState!.save();
-                  widget.saveItem(widget.selectedItem);
-                }
-              },
-            ),
+            ShadButton(onPressed: submit, child: const Text('Save')),
             const SizedBox(width: 20),
             ShadButton.outline(
               child: const Text('Cancel'),
@@ -763,7 +798,7 @@ class _DataFormBodyState extends State<DataFormBody> {
     }
 
     return Form(
-      key: formKey,
+      key: _formKey,
       child: ListView(
         controller: ScrollController(),
         padding: const EdgeInsets.all(16.0),

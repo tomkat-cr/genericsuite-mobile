@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   android_id: ^0.5.1
+  crypto: ^3.0.6
   device_info_plus: ^12.3.0
   flutter_secure_storage: ^10.0.0
   get_it: ^9.2.0

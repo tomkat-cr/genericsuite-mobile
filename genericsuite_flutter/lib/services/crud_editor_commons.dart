@@ -4,6 +4,7 @@ import 'http_service.dart';
 import 'utilities.dart';
 
 const gceComDebug = false;
+const gceComBuildChildRowToSaveDebug = true;
 
 const actionCreate = 'create';
 const actionRead = 'read';
@@ -190,6 +191,16 @@ Future<Map<String, dynamic>> reduceAllResponses(
   return responsesReduced;
 }
 
+dynamic getParentElementValue(
+  Map<String, dynamic> keyPair,
+  Map<String, dynamic> parentData,
+) {
+  return (keyPair['parentElementName'] == 'id' ||
+          keyPair['parentElementName'] == '_id'
+      ? getId(parentData['_id'])
+      : parentData[keyPair['parentElementName']]);
+}
+
 /*
  * Build the row payload for a database write, mirroring genericsuite-fe's
  * saveRowToDatabase() child_listing handling
@@ -214,6 +225,12 @@ Map<String, dynamic> buildChildRowToSave({
   final Map<String, dynamic> rowToSave = Map<String, dynamic>.from(
     submittedItem,
   )..remove('resultset');
+  if (gceComBuildChildRowToSaveDebug) {
+    logDebug(
+      'CRUD_commons | buildChildRowToSave / submittedItem: $submittedItem',
+    );
+    logDebug('CRUD_commons | buildChildRowToSave / rowToSave: $rowToSave');
+  }
   final Map<String, dynamic> cleanInitialValues = Map<String, dynamic>.from(
     initialValues,
   )..remove('resultset');
@@ -228,19 +245,27 @@ Map<String, dynamic> buildChildRowToSave({
   );
   final Map<String, dynamic> parentKeys = {};
   for (final keyPair in (editorConfig['endpointKeyNames'] as List)) {
-    parentKeys[keyPair['parameterName']] =
-        parentData[keyPair['parentElementName']];
+    parentKeys[keyPair['parameterName']] = getParentElementValue(
+      keyPair,
+      parentData,
+    );
   }
 
   if (editorConfig['subType'] == 'array') {
     final String arrayName = editorConfig['array_name'];
     if (action == actionDelete) {
-      return {
+      Map<String, dynamic> resultDelete = {
         'rowId': null,
         'rowToSave': {...parentKeys, '${arrayName}_old': cleanInitialValues},
       };
+      if (gceComBuildChildRowToSaveDebug) {
+        logDebug(
+          'CRUD_commons | buildChildRowToSave / resultDelete: $resultDelete',
+        );
+      }
+      return resultDelete;
     }
-    return {
+    Map<String, dynamic> resultSave = {
       'rowId': null,
       'rowToSave': {
         ...parentKeys,
@@ -248,6 +273,10 @@ Map<String, dynamic> buildChildRowToSave({
         '${arrayName}_old': cleanInitialValues,
       },
     };
+    if (gceComBuildChildRowToSaveDebug) {
+      logDebug('CRUD_commons | buildChildRowToSave / resultSave: $resultSave');
+    }
+    return resultSave;
   }
 
   // subType 'table'

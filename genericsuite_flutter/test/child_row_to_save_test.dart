@@ -10,7 +10,7 @@ void main() {
       'subType': 'array',
       'array_name': 'food_times',
       'endpointKeyNames': [
-        {'parameterName': 'user_id', 'parentElementName': '_id'},
+        {'parameterName': 'user_id', 'parentElementName': 'id'},
       ],
       'parentData': {'_id': 'USER1', 'firstname': 'Carlos'},
     };
@@ -19,7 +19,7 @@ void main() {
       'type': 'child_listing',
       'subType': 'table',
       'endpointKeyNames': [
-        {'parameterName': 'user_id', 'parentElementName': '_id'},
+        {'parameterName': 'user_id', 'parentElementName': 'id'},
       ],
       'parentData': {'_id': 'USER1'},
     };
@@ -73,10 +73,10 @@ void main() {
         initialValues: {'food_moment_id': 'fm1', 'food_time': '09:00'},
       );
       expect(result['rowId'], isNull);
-      expect(
-        result['rowToSave']['food_times_old'],
-        {'food_moment_id': 'fm1', 'food_time': '09:00'},
-      );
+      expect(result['rowToSave']['food_times_old'], {
+        'food_moment_id': 'fm1',
+        'food_time': '09:00',
+      });
     });
   });
 }

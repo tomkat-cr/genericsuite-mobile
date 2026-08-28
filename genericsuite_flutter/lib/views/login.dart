@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../services/app_callables_super.dart';
 import '../services/crud_editor.dart';
@@ -9,6 +6,7 @@ import '../services/http_service.dart';
 import '../services/locator_service.dart';
 import '../services/message_service.dart';
 import '../services/theme_config_defaults.dart';
+import '../services/current_user_service.dart';
 import '../services/utilities.dart';
 
 const loginDebug = false;
@@ -27,7 +25,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -163,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
     jwt = resultset['token'];
     errorMessage = '';
     if (jwt.isNotEmpty) {
-      await storage.write(key: 'jwt', value: jwt);
+      await saveToStorage('jwt', jwt);
 
       resultset.remove('token');
       if (resultset.containsKey('_id')) {
@@ -171,7 +168,9 @@ class _LoginPageState extends State<LoginPage> {
         resultset.remove('_id');
       }
 
-      await storage.write(key: 'user_data', value: json.encode(resultset));
+      // user_data constains all the user data, including:
+      // _id field, name, lastname, phone, email, DOB, superuser, et al.
+      await saveUserData(resultset);
 
       if (context.mounted) {
         // redirectMainScreen(
@@ -194,7 +193,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _processSignUp(BuildContext context) async {
     _initMessages();
-    Map<String, dynamic> callbacks = appCallables.getUserCallbacks(context);
+    Map<String, dynamic> callbacks = appCallables.getUserCallbacks(context, {});
     Map<String, dynamic> props = {
       'isCreation': true,
       'showAppMenu': false,

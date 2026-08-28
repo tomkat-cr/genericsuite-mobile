@@ -10,10 +10,111 @@ import 'utilities.dart';
 const acsDebug = false;
 const Duration debounceDuration = Duration(milliseconds: 500);
 
+/// Normalizes a GenericSuite `resultset` into a list of row maps.
+/// Listing endpoints often send a JSON string (see CrudEditor._loadItems);
+/// FDA-style endpoints send an already-decoded list.
+List<Map<String, dynamic>> suggestionRowsFromResultset(dynamic resultset) {
+  dynamic raw = resultset;
+  if (raw == null) {
+    return <Map<String, dynamic>>[];
+  }
+  if (raw is String) {
+    if (raw.isEmpty) {
+      return <Map<String, dynamic>>[];
+    }
+    try {
+      raw = jsonDecode(raw);
+    } catch (_) {
+      return <Map<String, dynamic>>[];
+    }
+  }
+  if (raw is Map) {
+    final dynamic nested = raw['resultset'] ?? raw['rows'] ?? raw['items'];
+    if (nested != null && !identical(nested, raw)) {
+      return suggestionRowsFromResultset(nested);
+    }
+    return <Map<String, dynamic>>[];
+  }
+  if (raw is! List) {
+    return <Map<String, dynamic>>[];
+  }
+  return raw
+      .whereType<Map>()
+      .map((item) => Map<String, dynamic>.from(item))
+      .toList();
+}
+
+/// Autocomplete labels from [rows] using [descField]. Skips null/empty.
+List<String> suggestionOptionLabels(
+  Iterable<Map<String, dynamic>> rows,
+  String? descField,
+) {
+  if (descField == null || descField.isEmpty) {
+    return <String>[];
+  }
+  final List<String> labels = <String>[];
+  for (final row in rows) {
+    final dynamic value = row[descField];
+    if (value == null) {
+      continue;
+    }
+    final String label = value.toString();
+    if (label.isEmpty) {
+      continue;
+    }
+    labels.add(label);
+  }
+  return labels;
+}
+
+/// Writes a manually typed suggestion-dropdown value into [selectedItem].
+void applySuggestionTypedValue(
+  Map<String, dynamic> selectedItem,
+  String fieldName,
+  String? value,
+) {
+  selectedItem[fieldName] = value ?? '';
+}
+
+/// Applies a picked suggestion the same way genericsuite-fe does: writes
+/// the form field's own [fieldName] and only the keys listed in
+/// `autocomplete_fields`. Related-table columns such as `_id` / `name`
+/// are not copied onto the row.
+void applySuggestionSelectedValue({
+  required Map<String, dynamic> selectedItem,
+  required Map<String, dynamic> config,
+  required String fieldName,
+  required String encodedValue,
+}) {
+  final Map<String, dynamic> valueMap = Map<String, dynamic>.from(
+    jsonDecode(encodedValue),
+  );
+  if (valueMap.isEmpty) {
+    return;
+  }
+  final dynamic description = valueMap[config['suggestion_desc_fieldname']];
+  if (description == null || description.toString().isEmpty) {
+    return;
+  }
+  final dynamic autocompleteFields = config['autocomplete_fields'];
+  if (autocompleteFields is Map) {
+    autocompleteFields.forEach((field, attrName) {
+      selectedItem[field.toString()] = valueMap[attrName] ?? '';
+    });
+  }
+  final String nameKey =
+      (config['suggestion_name_fieldname'] as String?)?.isNotEmpty == true
+      ? config['suggestion_name_fieldname'] as String
+      : config['suggestion_desc_fieldname'] as String;
+  selectedItem[fieldName] = valueMap[nameKey] ?? description;
+}
+
 class AsyncAutocomplete extends StatefulWidget {
   final Map<String, dynamic> config;
   final String value;
   final Function(String) onSelected;
+  final Function(String)? onChanged;
+  final Function(String)? onSaved;
   final Function(String, String, int) setError;
 
   const AsyncAutocomplete({
@@ -21,6 +122,8 @@ class AsyncAutocomplete extends StatefulWidget {
     required this.value,
     required this.onSelected,
     required this.setError,
+    this.onChanged,
+    this.onSaved,
     super.key,
   });
 
@@ -68,14 +171,19 @@ class AsyncAutocompleteState extends State<AsyncAutocomplete> {
     }
     _currentQuery = null;
 
-    // Get the description from the options
-    final Iterable<String> options = optionsRetrieved.map(
-      (item) => item[widget.config['suggestion_desc_fieldname']],
+    final String? descField = widget.config['suggestion_desc_fieldname']
+        ?.toString();
+    final List<String> options = suggestionOptionLabels(
+      optionsRetrieved,
+      descField,
     );
 
     // Store the options data for later use
-    for (var item in optionsRetrieved) {
-      optionsData[item[widget.config['suggestion_desc_fieldname']]] = item;
+    for (final item in optionsRetrieved) {
+      final String? key = item[descField]?.toString();
+      if (key != null && key.isNotEmpty) {
+        optionsData[key] = item;
+      }
     }
 
     return options;
@@ -101,6 +209,16 @@ class AsyncAutocompleteState extends State<AsyncAutocomplete> {
         _lastOptions = options;
         return options;
       },
+      fieldViewBuilder:
+          (context, textEditingController, focusNode, onFieldSubmitted) {
+            return TextFormField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              onChanged: (value) => widget.onChanged?.call(value),
+              onSaved: (value) => widget.onSaved?.call(value ?? ''),
+              onFieldSubmitted: (_) => onFieldSubmitted(),
+            );
+          },
       onSelected: (String selection) {
         widget.onSelected(json.encode(optionsData[selection]));
         debugPrint(
@@ -151,8 +269,12 @@ class _ApiCall {
     if (acsDebug) {
       logDebug('Autocomplete | _runApiCall | localApiResp: $localApiResp');
     }
-    if (localApiResp['error_message'] != null &&
-        localApiResp['error_message'].isNotEmpty) {
+    final List<Map<String, dynamic>> rows = suggestionRowsFromResultset(
+      localApiResp['resultset'],
+    );
+    if (rows.isEmpty &&
+        localApiResp['error_message'] != null &&
+        localApiResp['error_message'].toString().isNotEmpty) {
       int severity = localApiResp['status_code'] == 500
           ? severityHigh
           : localApiResp['status_code'] == 400
@@ -167,7 +289,7 @@ class _ApiCall {
       );
     }
     List<Map<String, dynamic>> resultset = [];
-    for (var item in List<dynamic>.from(localApiResp['resultset'])) {
+    for (var item in rows) {
       Map<String, dynamic> newItem = {
         widgetConfig['suggestion_id_fieldname']:
             item[widgetConfig['suggestion_id_fieldname']],
@@ -215,6 +337,8 @@ class SuggestionDropdown extends StatefulWidget {
   final Map<String, dynamic> config;
   final String value;
   final Function(String) onSelected;
+  final Function(String)? onChanged;
+  final Function(String)? onSaved;
   final Function(String, String, int) setError;
 
   const SuggestionDropdown({
@@ -222,6 +346,8 @@ class SuggestionDropdown extends StatefulWidget {
     required this.value,
     required this.onSelected,
     required this.setError,
+    this.onChanged,
+    this.onSaved,
     super.key,
   });
 
@@ -280,6 +406,8 @@ class SuggestionDropdownState extends State<SuggestionDropdown> {
           config: widget.config,
           value: widget.value,
           onSelected: widget.onSelected,
+          onChanged: widget.onChanged,
+          onSaved: widget.onSaved,
           setError: widget.setError,
         ),
       ],

@@ -8,8 +8,14 @@ const utDebug = false;
 
 // ObjectId functions
 
-String getId(Map<String, dynamic> fieldId) {
-  return fieldId['\$oid'];
+String getId(dynamic fieldId) {
+  if (fieldId is String) {
+    return fieldId;
+  }
+  if (fieldId is Map && fieldId.containsKey('\$oid')) {
+    return fieldId['\$oid'];
+  }
+  return '';
 }
 
 void convertObjectId(Map<String, dynamic> recordset) {
@@ -139,13 +145,6 @@ dynamic defaultValue(
   }
   return defaultValue;
 }
-
-// String paramsToUrlQuery(Map<String, dynamic> params) {
-//   String urlQuery = '';
-//   params.entries.map((entry) => (urlQuery +=
-//       "${(urlQuery.isEmpty ? "?" : "&")}${entry.key}=${entry.value}"));
-//   return urlQuery;
-// }
 
 // Log functions
 

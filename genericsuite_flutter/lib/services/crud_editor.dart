@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:genericsuite/services/crud_editor_commons.dart';
 import 'package:genericsuite/services/crud_editor_selector.dart';
 import 'package:genericsuite/services/crud_editor_sf_filters.dart';
@@ -11,12 +12,18 @@ import 'package:genericsuite/services/form_field_service.dart';
 import 'package:genericsuite/services/general_messages.dart';
 import 'package:genericsuite/services/http_service.dart';
 import 'package:genericsuite/services/locator_service.dart';
+import 'package:genericsuite/services/md5_utilities.dart';
 import 'package:genericsuite/services/message_service.dart';
 import 'package:genericsuite/services/utilities.dart';
 import 'package:genericsuite/widgets/app_frame.dart';
+import 'package:genericsuite/widgets/crud_busy_body.dart';
 
 const gceMainDebug = false;
-const debugRunCrudCallback = false;
+const gceRunCrudCallbackDebug = false;
+const gceRowIdDebug = false;
+const gceSetEndpointFilterDebug = false;
+const gceSetEditorConfigDebug = false;
+const gceSaveItemDebug = true;
 
 class CrudEditor extends StatefulWidget {
   final String jsonFileName;
@@ -70,6 +77,8 @@ class CrudEditorState extends State<CrudEditor> {
   String infoMessage = '';
 
   Map<String, dynamic> constants = {};
+  final GlobalKey<DataFormBodyState> _dataFormKey =
+      GlobalKey<DataFormBodyState>();
 
   /*
    * Schedule bindings, to show error and info messages after the widget is built
@@ -158,10 +167,16 @@ class CrudEditorState extends State<CrudEditor> {
   void _setEndpointFilter(Map<String, dynamic> parentData) {
     // Check inconsistencies: parentData isn't loaded yet or endpointKeyNames is not defined
     if (parentData.isEmpty || !editorConfig.containsKey('endpointKeyNames')) {
+      logDebug(
+        'CRUD / _setEndpointFilter / parentData is empty or endpointKeyNames is not defined',
+      );
       return;
     }
     // Check inconsistencies: parentData length
     if (parentData.length < editorConfig['endpointKeyNames'].length) {
+      logDebug(
+        'CRUD / _setEndpointFilter / parentData length is less than endpointKeyNames length',
+      );
       return;
     }
     // Set endpointFilter to retrieve the parent table item
@@ -169,7 +184,7 @@ class CrudEditorState extends State<CrudEditor> {
     editorConfig['endpointFilter'] = {};
     editorConfig['endpointKeyNames'].forEach((keyPair) {
       editorConfig['endpointFilter'][keyPair['parameterName']] =
-          parentData[keyPair['parentElementName']];
+          getParentElementValue(keyPair, parentData);
     });
 
     // IMPORTANT: endpointFilter and parentData
@@ -177,6 +192,18 @@ class CrudEditorState extends State<CrudEditor> {
     // The component call must have the parentData={parentData} attribute
     // and eventually handleFormPageActions={handleFormPageActions}
     editorConfig['parentData'] = parentData;
+
+    if (gceSetEndpointFilterDebug) {
+      logDebug(
+        'CRUD / _setEndpointFilter / editorConfig[parentData]: ${editorConfig['parentData']}',
+      );
+      logDebug(
+        'CRUD / _setEndpointFilter / editorConfig[endpointKeyNames]: ${editorConfig['endpointKeyNames']}',
+      );
+      logDebug(
+        'CRUD / _setEndpointFilter / editorConfig[endpointFilter]: ${editorConfig['endpointFilter']}',
+      );
+    }
   }
 
   Future<bool> _addStandardCallbacks() async {
@@ -294,11 +321,20 @@ class CrudEditorState extends State<CrudEditor> {
             BuildContext? context,
           ) async =>
               usersDbPreWrite(data, editorConfig, action, params, context);
+      callbacks['specificFunctions']['UsersApiKeyDbPreRead'] =
+          (
+            dynamic data,
+            Map<String, dynamic> editorConfig,
+            String action,
+            Map<String, dynamic> params,
+            BuildContext? context,
+          ) async =>
+              usersApiKeyDbPreRead(data, editorConfig, action, params, context);
     } catch (e, stackTrace) {
       errorMessage = 'Error adding standard callbacks';
       errorCode = "FGCE-ASC-E010";
       await logError(
-        'CRUD | _addStandardCallbacks | ERROR: $e'
+        'CRUD / _addStandardCallbacks | ERROR: $e'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
       );
@@ -314,13 +350,13 @@ class CrudEditorState extends State<CrudEditor> {
     String configFilename =
         "assets/config_dbdef/frontend/${widget.jsonFileName}";
     if (gceMainDebug) {
-      logDebug('CRUD | _getEditorConfig | configFilename: $configFilename');
+      logDebug('CRUD / _getEditorConfig | configFilename: $configFilename');
     }
     return getJsonFile(configFilename)
         .then((editorConfigRaw) {
           editorConfig = Map<String, dynamic>.from(editorConfigRaw);
           if (gceMainDebug) {
-            logDebug('CRUD | _getEditorConfig | configFilename LOADED');
+            logDebug('CRUD / _getEditorConfig | configFilename LOADED');
           }
           return _setEditorConfig();
         })
@@ -330,7 +366,7 @@ class CrudEditorState extends State<CrudEditor> {
               '${gceMainDebug ? '\nDetail: $e\nFile: $configFilename' : ''}';
           errorCode = "FGCE-GEC-E010";
           return logError(
-            'CRUD | _getEditorConfig | ERROR: $e',
+            'CRUD / _getEditorConfig | ERROR: $e',
             errorCode,
           ).then((_) {
             return false;
@@ -501,6 +537,16 @@ class CrudEditorState extends State<CrudEditor> {
     }
 
     if (editorConfig['type'] == 'child_listing' && !subTypeError) {
+      if (gceSetEditorConfigDebug) {
+        logDebug(
+          'CRUD / _setEndpointFilter / editorConfig[type]: ${editorConfig['type']} | subType: ${editorConfig['subType']}',
+        );
+        logDebug('CRUD / _setEndpointFilter / widget.props: ${widget.props}');
+        logDebug(
+          'CRUD / _setEndpointFilter / widget.props![parentData]: ${widget.props!['parentData']}',
+        );
+      }
+
       // Filters for child components
       if (editorConfig['subType'] == 'array') {
         if (editorConfig['endpointKeyNames'].length == 0) {
@@ -522,13 +568,15 @@ class CrudEditorState extends State<CrudEditor> {
         errorMessage = editorConfig['error'];
         errorCode = "FGCE-LEC-E010";
         await logError(
-          'CRUD | _loadEditorConfig | ERROR [1]: ${editorConfig['error']}',
+          'CRUD / _loadEditorConfig | ERROR [1]: ${editorConfig['error']}',
           errorCode,
         );
         return false;
       }
       if (widget.props != null && widget.props!.containsKey('parentData')) {
         _setEndpointFilter(widget.props!['parentData']);
+      } else {
+        editorConfig['error'] = 'Missing parentData parameter';
       }
     }
 
@@ -550,9 +598,9 @@ class CrudEditorState extends State<CrudEditor> {
       return field['listing'] == true;
     }).toList();
 
-    if (gceMainDebug) {
+    if (gceSetEditorConfigDebug) {
       logDebug(
-        'CRUD | _loadEditorConfig | listingFieldElements: ${listingFieldElements.toString()}',
+        'CRUD / _loadEditorConfig | listingFieldElements: ${listingFieldElements.toString()}',
       );
     }
 
@@ -564,16 +612,16 @@ class CrudEditorState extends State<CrudEditor> {
     }
 
     // To start the editor in edit mode or creation mode
-    if (gceMainDebug) {
+    if (gceSetEditorConfigDebug) {
       logDebug(
-        'CRUD | _loadEditorConfig | widget.props: ${widget.props.toString()}',
+        'CRUD / _loadEditorConfig | widget.props: ${widget.props.toString()}',
       );
     }
     if (widget.props != null) {
       if (widget.props!.containsKey('isEditMode')) {
-        if (gceMainDebug) {
+        if (gceSetEditorConfigDebug) {
           logDebug(
-            'CRUD | _loadEditorConfig | FORCED isEditMode: ${widget.props!['isEditMode']}',
+            'CRUD / _loadEditorConfig | FORCED isEditMode: ${widget.props!['isEditMode']}',
           );
         }
         isEditModeForced = widget.props!['isEditMode'];
@@ -585,9 +633,9 @@ class CrudEditorState extends State<CrudEditor> {
       if (widget.props!.containsKey('isCreation')) {
         isCreationForced = widget.props!['isCreation'];
         isCreation = isCreationForced;
-        if (gceMainDebug) {
+        if (gceSetEditorConfigDebug) {
           logDebug(
-            'CRUD | _loadEditorConfig | FORCED isCreation: ${widget.props!['isCreation']}',
+            'CRUD / _loadEditorConfig | FORCED isCreation: ${widget.props!['isCreation']}',
           );
         }
       }
@@ -612,15 +660,15 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = editorConfig['error'];
       errorCode = "FGCE-LEC-E020";
       await logError(
-        'CRUD | _loadEditorConfig | ERROR [2]: ${editorConfig['error']}',
+        'CRUD / _loadEditorConfig | ERROR [2]: ${editorConfig['error']}',
         errorCode,
       );
       return false;
     }
 
-    if (gceMainDebug) {
+    if (gceSetEditorConfigDebug) {
       logDebug(
-        'CRUD | 3) loadconfig | userId: $userId | editorConfig: $editorConfig',
+        'CRUD / 3) loadconfig | userId: $userId | editorConfig: $editorConfig',
       );
     }
     return true;
@@ -631,7 +679,7 @@ class CrudEditorState extends State<CrudEditor> {
   */
   Future<bool> _loadConfig() async {
     if (gceMainDebug) {
-      logDebug('CRUD | 1) loadconfig...');
+      logDebug('CRUD / 1) loadconfig...');
     }
     return storage.read(key: 'user_data').then((userDataValue) {
       return getAllConstants().then((constantsMap) {
@@ -658,7 +706,7 @@ class CrudEditorState extends State<CrudEditor> {
 
           if (gceMainDebug) {
             logDebug(
-              'CRUD | 1.1) loadconfig | currentUserData: $currentUserData',
+              'CRUD / 1.1) loadconfig | currentUserData: $currentUserData',
             );
           }
 
@@ -669,7 +717,7 @@ class CrudEditorState extends State<CrudEditor> {
 
           if (gceMainDebug) {
             logDebug(
-              'CRUD | 2) loadconfig | userId: $userId'
+              'CRUD / 2) loadconfig | userId: $userId'
               ' | jsonFileName: ${widget.jsonFileName}',
             );
           }
@@ -685,18 +733,24 @@ class CrudEditorState extends State<CrudEditor> {
                   return true;
                 });
               } else if (isCreationForced) {
-                if (!mounted) return true;
-                setState(() {
-                  selectedItem = _getEmptyItem();
-                  originalSelectedItem = {};
-                  isCreation = true;
+                return _prepareNewItem().then((item) {
+                  if (!mounted) return true;
+                  if (item == null) {
+                    _setStateAndShowMessages();
+                    return false;
+                  }
+                  setState(() {
+                    selectedItem = item;
+                    originalSelectedItem = {};
+                    isCreation = true;
+                  });
+                  if (gceMainDebug) {
+                    logDebug(
+                      'CRUD / _loadEditorConfig | isCreationForced | selectedItem: ${selectedItem.toString()}',
+                    );
+                  }
+                  return true;
                 });
-                if (gceMainDebug) {
-                  logDebug(
-                    'CRUD | _loadEditorConfig | isCreationForced | selectedItem: ${selectedItem.toString()}',
-                  );
-                }
-                return true;
               } else {
                 _loadItems().then((result) {
                   return true;
@@ -728,7 +782,7 @@ class CrudEditorState extends State<CrudEditor> {
     Map<String, dynamic> body = bodyParams.cast<String, dynamic>();
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _runApiCall | urlSuffix: $urlSuffix | requestMethod: $requestMethod | body: $body | getParams: $getParams',
+        'CRUD / _runApiCall | urlSuffix: $urlSuffix | requestMethod: $requestMethod | body: $body | getParams: $getParams',
       );
     }
     final localApiResp = await api.httpsCall(
@@ -739,7 +793,7 @@ class CrudEditorState extends State<CrudEditor> {
       getParams,
     );
     if (gceMainDebug) {
-      logDebug('CRUD | _runApiCall | localApiResp: $localApiResp');
+      logDebug('CRUD / _runApiCall | localApiResp: $localApiResp');
     }
     if (mounted) {
       setState(() {
@@ -846,6 +900,50 @@ class CrudEditorState extends State<CrudEditor> {
   }
 
   /*
+   * Apply dbPreRead fieldValues.resultset onto a new (create) row.
+   * Mirrors genericsuite-fe FormPage ACTION_CREATE, which setFormData()s
+   * dbPreRead output and binds the form to formData.resultset.
+   */
+  Future<Map<String, dynamic>?> _prepareNewItem() async {
+    Map<String, dynamic> item = _getEmptyItem();
+    final Map<String, dynamic> callbackResp = await _runCrudCallback(
+      'dbPreRead',
+      item,
+      actionCreate,
+      {},
+    );
+    if (callbackResp['error'] != "") {
+      errorMessage = getApiErrorMessage('internalError');
+      errorCode = '${callbackResp['error_code']}\nFGCE-PNI-E010';
+      await logError(
+        'CRUD / _prepareNewItem | dbPreRead | ERROR / callbackResp: $callbackResp',
+        errorCode,
+      );
+      return null;
+    }
+    final dynamic fieldValues = callbackResp['fieldValues'];
+    if (fieldValues is Map && fieldValues['resultset'] is Map) {
+      item = {...item, ...Map<String, dynamic>.from(fieldValues['resultset'])};
+    }
+    return item;
+  }
+
+  Future<void> _startCreate() async {
+    final Map<String, dynamic>? item = await _prepareNewItem();
+    if (!mounted) return;
+    if (item == null) {
+      _setStateAndShowMessages();
+      return;
+    }
+    setState(() {
+      isEditMode = true;
+      isCreation = true;
+      selectedItem = item;
+      originalSelectedItem = {};
+    });
+  }
+
+  /*
    * Set item values from the data read from the database
    */
   // Map<String, dynamic> _getItemValuesFromDb(Map<String, dynamic> itemValues) {
@@ -874,9 +972,9 @@ class CrudEditorState extends State<CrudEditor> {
         !callbacks.containsKey('specificFunctions') ||
         editorConfig[funcType] == null ||
         editorConfig[funcType].isEmpty) {
-      if (debugRunCrudCallback) {
+      if (gceRunCrudCallbackDebug) {
         logDebug(
-          'CRUD | _runCrudCallback | ERROR: No callbacks found for $funcType'
+          'CRUD / _runCrudCallback | ERROR: No callbacks found for $funcType'
           '\n | action: $action'
           '\n | params: $params'
           '\n | originalData: $originalData'
@@ -886,9 +984,9 @@ class CrudEditorState extends State<CrudEditor> {
       return finalResult;
     }
 
-    if (debugRunCrudCallback) {
+    if (gceRunCrudCallbackDebug) {
       logDebug(
-        'CRUD | _runCrudCallback | [$funcType] | Begin'
+        'CRUD / _runCrudCallback | [$funcType] | Begin'
         '\n | action: $action'
         '\n | params: $params'
         '\n | originalData: $originalData'
@@ -899,21 +997,22 @@ class CrudEditorState extends State<CrudEditor> {
     String funcName = "";
     try {
       // Add current user data to params so specific functions can use it
-      if (debugRunCrudCallback) {
+      if (gceRunCrudCallbackDebug) {
         logDebug(
-          'CRUD | _runCrudCallback | init callingParams = params: ${params.toString()}',
+          'CRUD / _runCrudCallback | init callingParams = params: ${params.toString()}',
         );
       }
       Map<String, dynamic> callingParams = params;
-      if (debugRunCrudCallback) {
+      if (gceRunCrudCallbackDebug) {
         logDebug(
-          'CRUD | _runCrudCallback | Adding current user data to params: ${currentUserData.toString()}',
+          'CRUD / _runCrudCallback | Adding current user data to params: ${currentUserData.toString()}',
         );
       }
+      // All callback functions will have access to the current user data (currentUserData) in the 'currentUser' key.
       callingParams['currentUser'] = Map<String, dynamic>.from(currentUserData);
-      if (debugRunCrudCallback) {
+      if (gceRunCrudCallbackDebug) {
         logDebug(
-          'CRUD | _runCrudCallback Before Loop'
+          'CRUD / _runCrudCallback Before Loop'
           '\n | callingParams: ${callingParams.toString()}'
           '\n | editorConfig[funcType]: ${editorConfig[funcType].toString()}',
         );
@@ -924,17 +1023,17 @@ class CrudEditorState extends State<CrudEditor> {
       for (var callbackName in editorConfig[funcType]) {
         funcName = callbackName;
         if (!callbacks['specificFunctions'].containsKey(callbackName)) {
-          if (debugRunCrudCallback) {
+          if (gceRunCrudCallbackDebug) {
             logDebug(
-              'CRUD | _runCrudCallback | [$funcType] | Processing: $callbackName...',
+              'CRUD / _runCrudCallback | [$funcType] | Processing: $callbackName...',
             );
           }
           error += "Not found Callback '$callbackName' in [$funcType]\n";
           continue;
         }
-        if (debugRunCrudCallback) {
+        if (gceRunCrudCallbackDebug) {
           logDebug(
-            'CRUD | _runCrudCallback | [$funcType] | Starting: $callbackName...',
+            'CRUD / _runCrudCallback | [$funcType] | Starting: $callbackName...',
           );
         }
         Map<String, dynamic> callbackResult =
@@ -945,9 +1044,9 @@ class CrudEditorState extends State<CrudEditor> {
               callingParams,
               context,
             );
-        if (debugRunCrudCallback) {
+        if (gceRunCrudCallbackDebug) {
           logDebug(
-            'CRUD | _runCrudCallback | [$funcType] | $funcName | callbackResult: ${callbackResult.toString()}',
+            'CRUD / _runCrudCallback | [$funcType] | $funcName | callbackResult: ${callbackResult.toString()}',
           );
         }
         responses.add(callbackResult);
@@ -964,7 +1063,7 @@ class CrudEditorState extends State<CrudEditor> {
         finalResult['error'] = error + finalResult['error'];
         finalResult['error_code'] = "FGCE-RCB-E010";
         await logError(
-          'CRUD | _runCrudCallback [1] | ${finalResult['error']}',
+          'CRUD / _runCrudCallback [1] | ${finalResult['error']}',
           finalResult['error_code'],
         );
       }
@@ -973,7 +1072,7 @@ class CrudEditorState extends State<CrudEditor> {
           '[$funcType] | ${funcName.isNotEmpty ? funcName : 'Function Name Unknown'} | ERROR: $e';
       finalResult['error_code'] = "FGCE-RCB-E020";
       await logError(
-        'CRUD | _runCrudCallback [2] | ${finalResult['error']} [${finalResult['error_code']}]'
+        'CRUD / _runCrudCallback [2] | ${finalResult['error']} [${finalResult['error_code']}]'
         '\nError trace:\n${stackTrace.toString()}',
         finalResult['error_code'],
       );
@@ -1004,19 +1103,50 @@ class CrudEditorState extends State<CrudEditor> {
     }).toList();
   }
 
-  String rowId(Map<String, dynamic> row) {
-    if (debugRunCrudCallback) {
+  String canonicalRow(dynamic row) {
+    dynamic sortKeys(dynamic value) {
+      if (value is Map) {
+        final keys = value.keys.map((k) => k.toString()).toList()..sort();
+        return {for (final key in keys) key: sortKeys(value[key])};
+      }
+      if (value is List) {
+        return value.map(sortKeys).toList();
+      }
+      return value;
+    }
+
+    return jsonEncode(sortKeys(row));
+  }
+
+  String rowId(dynamic row, bool isCreation) {
+    if (gceRowIdDebug) {
       logDebug(
         'rowId | editorConfig[primaryKeyName]: ${editorConfig['primaryKeyName']} | row: ${row.toString()}',
       );
     }
-    String response = getId(
-      row.containsKey('_id') && getId(row['_id']).isNotEmpty
-          ? row['_id']
-          : row[editorConfig['primaryKeyName']],
-    );
-    if (debugRunCrudCallback) {
-      logDebug('rowId | response: $response');
+
+    String response = "";
+    if (row is String) {
+      response = row;
+    } else if (row is Map<String, dynamic>) {
+      response = getId(
+        row.containsKey('_id') && getId(row['_id']).isNotEmpty
+            ? row['_id']
+            : row[editorConfig['primaryKeyName']],
+      );
+    } else {
+      if (gceRowIdDebug) {
+        logDebug("rowId | Unexpected row type: ${row.runtimeType}");
+      }
+      response = "";
+    }
+
+    if (response.isEmpty) {
+      response = isCreation ? getHash(canonicalRow(row)) : "";
+    }
+
+    if (gceRowIdDebug) {
+      logDebug('rowId | isCreation: $isCreation | response: $response');
     }
     return response;
   }
@@ -1026,7 +1156,7 @@ class CrudEditorState extends State<CrudEditor> {
     */
   Future<void> _loadItems() async {
     if (gceMainDebug) {
-      logDebug('CRUD | (1) _loadItems | userId: $userId');
+      logDebug('CRUD / (1) _loadItems | userId: $userId');
     }
 
     Map<String, dynamic> callbackResp = {};
@@ -1050,7 +1180,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-LI-E010";
       await logError(
-        'CRUD | _loadItems | dbListPreRead | ERROR / callbackResp: ${callbackResp.toString()}',
+        'CRUD / _loadItems | dbListPreRead | ERROR / callbackResp: ${callbackResp.toString()}',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1059,7 +1189,7 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _loadItems | dbListPreRead | SUCCESS / callbackResp: ${callbackResp.toString()}'
+        'CRUD / _loadItems | dbListPreRead | SUCCESS / callbackResp: ${callbackResp.toString()}'
         '\n | endpointFilter: ${editorConfig['endpointFilter'].toString()}'
         '\n | fieldValues: ${callbackResp['fieldValues'].toString()}',
       );
@@ -1072,7 +1202,7 @@ class CrudEditorState extends State<CrudEditor> {
     });
 
     if (gceMainDebug) {
-      logDebug('CRUD | _loadItems | getParams: ${getParams.toString()}');
+      logDebug('CRUD / _loadItems | getParams: ${getParams.toString()}');
     }
 
     // Read item list from database (API)
@@ -1086,14 +1216,14 @@ class CrudEditorState extends State<CrudEditor> {
     if (localApiResp['error']) {
       if (gceMainDebug) {
         logDebug(
-          'CRUD | _loadItems | ERROR / localApiResp: ${localApiResp.toString()}',
+          'CRUD / _loadItems | ERROR / localApiResp: ${localApiResp.toString()}',
         );
       }
       errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-LI-E020";
       if (gceMainDebug) {
         logDebug(
-          'CRUD | (2) _loadItems | ERROR / localApiResp: ${localApiResp.toString()}',
+          'CRUD / (2) _loadItems | ERROR / localApiResp: ${localApiResp.toString()}',
         );
       }
       _setStateAndShowMessages();
@@ -1107,7 +1237,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = "Error loading items";
       errorCode = "FGCE-LI-E030";
       await logError(
-        'CRUD | _loadItems | ERROR doing json.decode / localApiResp: ${localApiResp.toString()}'
+        'CRUD / _loadItems | ERROR doing json.decode / localApiResp: ${localApiResp.toString()}'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
       );
@@ -1119,7 +1249,7 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (gceMainDebug) {
       logDebug(
-        'CRUD | (2) _loadItems | SUCCESS / localApiResp: ${localApiResp.toString()}',
+        'CRUD / (2) _loadItems | SUCCESS / localApiResp: ${localApiResp.toString()}',
       );
     }
 
@@ -1134,7 +1264,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-LI-E040";
       await logError(
-        'CRUD | _loadItems | dbListPostRead | ERROR / callbackResp: ${callbackResp.toString()}',
+        'CRUD / _loadItems | dbListPostRead | ERROR / callbackResp: ${callbackResp.toString()}',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1143,7 +1273,7 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _loadItems | dbListPostRead | SUCCESS / callbackResp: ${callbackResp.toString()}',
+        'CRUD / _loadItems | dbListPostRead | SUCCESS / callbackResp: ${callbackResp.toString()}',
       );
     }
 
@@ -1153,7 +1283,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = "Error loading items";
       errorCode = "FGCE-LI-E050";
       await logError(
-        'CRUD | _loadItems | ERROR doing List<dynamic>.from / callbackResp: $callbackResp'
+        'CRUD / _loadItems | ERROR doing List<dynamic>.from / callbackResp: $callbackResp'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
       );
@@ -1177,7 +1307,7 @@ class CrudEditorState extends State<CrudEditor> {
   Future<Map<String, dynamic>> _loadSelectedItem(String itemId) async {
     if (gceMainDebug) {
       logDebug(
-        'CRUD | (1) _loadSelectedItem | userId: $userId | itemId: $itemId',
+        'CRUD / (1) _loadSelectedItem | userId: $userId | itemId: $itemId',
       );
     }
 
@@ -1198,7 +1328,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-LSI-E010";
       await logError(
-        'CRUD | _loadSelectedItem | dbPreRead | ERROR / callbackResp: $callbackResp',
+        'CRUD / _loadSelectedItem | dbPreRead | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1207,7 +1337,7 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _loadSelectedItem | dbPreRead | SUCCESS / callbackResp: $callbackResp'
+        'CRUD / _loadSelectedItem | dbPreRead | SUCCESS / callbackResp: $callbackResp'
         ' | endpointFilter: ${editorConfig['endpointFilter']}'
         ' | fieldValues: ${callbackResp['fieldValues']}',
       );
@@ -1232,7 +1362,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorCode = "FGCE-LSI-E020";
       if (gceMainDebug) {
         logDebug(
-          'CRUD | (2) _loadSelectedItem | ERROR / localApiResp: $localApiResp',
+          'CRUD / (2) _loadSelectedItem | ERROR / localApiResp: $localApiResp',
         );
       }
       _setStateAndShowMessages();
@@ -1241,13 +1371,25 @@ class CrudEditorState extends State<CrudEditor> {
 
     // Load item from the API response
     Map<String, dynamic> itemData;
+    dynamic dynamicResultset;
     try {
-      itemData = json.decode(localApiResp['resultset']);
+      if (localApiResp['resultset'] is String) {
+        dynamicResultset = json.decode(localApiResp['resultset']);
+      } else {
+        dynamicResultset = localApiResp['resultset'];
+      }
+      if (dynamicResultset is List) {
+        itemData = dynamicResultset.first;
+      } else {
+        itemData = dynamicResultset;
+      }
     } catch (e, stackTrace) {
       errorMessage = "Error loading item";
       errorCode = "FGCE-LSI-E025";
       await logError(
-        'CRUD | _loadSelectedItem | ERROR doing json.decode / localApiResp: $localApiResp'
+        'CRUD / _loadSelectedItem | ERROR doing json.decode / localApiResp:'
+        '\n${localApiResp['resultset']}'
+        '\nError: $e'
         '\nError Trace:\n${stackTrace.toString()}',
         errorCode,
       );
@@ -1258,7 +1400,7 @@ class CrudEditorState extends State<CrudEditor> {
     isCreation = false;
     if (gceMainDebug) {
       logDebug(
-        'CRUD | (2) _loadSelectedItem | SUCCESS / localApiResp: $localApiResp',
+        'CRUD / (2) _loadSelectedItem | SUCCESS / localApiResp: $localApiResp',
       );
     }
 
@@ -1274,7 +1416,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-LSI-E030";
       await logError(
-        'CRUD | _loadSelectedItem | dbPostRead | ERROR / callbackResp: $callbackResp',
+        'CRUD / _loadSelectedItem | dbPostRead | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1295,7 +1437,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-LSI-E040";
       await logError(
-        'CRUD | _loadSelectedItem | dbPreValidations | ERROR / callbackResp: $callbackResp',
+        'CRUD / _loadSelectedItem | dbPreValidations | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1329,9 +1471,9 @@ class CrudEditorState extends State<CrudEditor> {
    * Save item to the database
    */
   Future<void> _saveItem(Map<String, dynamic> item) async {
-    if (gceMainDebug) {
+    if (gceSaveItemDebug) {
       logDebug(
-        'CRUD | _saveItem | isCreation: $isCreation | isCreationForced: $isCreationForced | item: $item',
+        'CRUD / _saveItem / isCreation: $isCreation | isCreationForced: $isCreationForced | item: $item',
       );
     }
 
@@ -1349,8 +1491,8 @@ class CrudEditorState extends State<CrudEditor> {
           (item['user_id'] == null || item['user_id'] == '')) {
         item['user_id'] = userId;
       }
-      if (gceMainDebug) {
-        logDebug('>> CRUD | _saveItem | isCreation | item: $item');
+      if (gceSaveItemDebug) {
+        logDebug('>> CRUD / _saveItem / isCreation | item: $item');
       }
     } else {
       convertObjectId(item);
@@ -1370,7 +1512,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-SI-E010";
       await logError(
-        'CRUD | _saveItem | validations | ERROR / callbackResp: $callbackResp',
+        'CRUD / _saveItem / validations | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1389,7 +1531,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-SI-E020";
       await logError(
-        'CRUD | _saveItem | dbPreWrite | ERROR / callbackResp: $callbackResp',
+        'CRUD / _saveItem / dbPreWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1403,7 +1545,7 @@ class CrudEditorState extends State<CrudEditor> {
     final Map<String, dynamic> childPayload = buildChildRowToSave(
       editorConfig: editorConfig,
       action: isCreation ? actionCreate : actionUpdate,
-      rowId: isCreation ? null : rowId(item),
+      rowId: isCreation ? null : rowId(item, true),
       submittedItem: item,
       initialValues: originalSelectedItem,
     );
@@ -1413,15 +1555,15 @@ class CrudEditorState extends State<CrudEditor> {
       childPayload['rowToSave'],
       {},
     );
-    if (gceMainDebug) {
-      logDebug('CRUD | _saveItem | localApiResp: $localApiResp');
+    if (gceSaveItemDebug) {
+      logDebug('CRUD / _saveItem / localApiResp: $localApiResp');
     }
     if (localApiResp['error']) {
       items = originalItems;
       errorMessage = _getErrorMessageAndDetailFromApiResponse(localApiResp);
       errorCode = "FGCE-SI-E030";
       await logError(
-        'CRUD | _saveItem | ERROR / localApiResp: $localApiResp',
+        'CRUD / _saveItem / ERROR / localApiResp: $localApiResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1462,7 +1604,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-SI-E050";
       await logError(
-        'CRUD | _saveItem | dbPostWrite | ERROR / callbackResp: $callbackResp',
+        'CRUD / _saveItem / dbPostWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1472,8 +1614,8 @@ class CrudEditorState extends State<CrudEditor> {
     // Return to the listing
     infoMessage =
         "${localApiResp['resultset']['rows_affected']} item(s) ${isCreation ? 'created' : 'updated'}";
-    if (gceMainDebug) {
-      logDebug('CRUD | _saveItem | SUCCESS / localApiResp: $localApiResp');
+    if (gceSaveItemDebug) {
+      logDebug('CRUD / _saveItem / SUCCESS / localApiResp: $localApiResp');
     }
 
     if (isCreationForced) {
@@ -1497,7 +1639,7 @@ class CrudEditorState extends State<CrudEditor> {
    */
   Future<void> _deleteItem(String itemId) async {
     if (gceMainDebug) {
-      logDebug('CRUD | _deleteItem | itemId: $itemId');
+      logDebug('CRUD / _deleteItem | itemId: $itemId');
     }
 
     Map<String, dynamic> callbackResp = {};
@@ -1514,7 +1656,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-DI-E010";
       await logError(
-        'CRUD | _deleteItem | validations | ERROR / callbackResp: $callbackResp',
+        'CRUD / _deleteItem | validations | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1533,7 +1675,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-DI-E020";
       await logError(
-        'CRUD | _deleteItem | dbPreWrite | ERROR / callbackResp: $callbackResp',
+        'CRUD / _deleteItem | dbPreWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       _setStateAndShowMessages();
@@ -1582,7 +1724,7 @@ class CrudEditorState extends State<CrudEditor> {
       errorMessage = getApiErrorMessage('internalError');
       errorCode = callbackResp['error_code'] + "\n" + "FGCE-DI-E030";
       await logError(
-        'CRUD | _deleteItem | dbPostWrite | ERROR / callbackResp: $callbackResp',
+        'CRUD / _deleteItem | dbPostWrite | ERROR / callbackResp: $callbackResp',
         errorCode,
       );
       isEditMode = false;
@@ -1592,12 +1734,12 @@ class CrudEditorState extends State<CrudEditor> {
 
     // Return to the listing
     if (gceMainDebug) {
-      logDebug('CRUD | _deleteItem | localApiResp: $localApiResp');
+      logDebug('CRUD / _deleteItem | localApiResp: $localApiResp');
     }
     infoMessage =
         "${localApiResp['resultset']['rows_affected']} item(s) deleted";
     if (gceMainDebug) {
-      logDebug('CRUD | _deleteItem | SUCCESS / localApiResp: $localApiResp');
+      logDebug('CRUD / _deleteItem | SUCCESS / localApiResp: $localApiResp');
     }
     return _loadItems();
   }
@@ -1693,14 +1835,14 @@ class CrudEditorState extends State<CrudEditor> {
 
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _buildListItem | title: $title, subtitle: $subtitle | item: $item',
+        'CRUD / _buildListItem | title: $title, subtitle: $subtitle | item: $item',
       );
     }
     return ListTile(
       title: Text(title),
       subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
       onTap: () => {
-        _loadSelectedItem(rowId(item)).then((value) {
+        _loadSelectedItem(rowId(item, false)).then((value) {
           selectedItem = value;
           _setStateAndShowMessages();
         }),
@@ -1721,7 +1863,7 @@ class CrudEditorState extends State<CrudEditor> {
   Widget _buildList() {
     if (gceMainDebug) {
       logDebug(
-        'CRUD | _buildList | isCreationForced: $isCreationForced'
+        'CRUD / _buildList | isCreationForced: $isCreationForced'
         ' | selectedItem: $selectedItem | items: $items',
       );
     }
@@ -1758,7 +1900,7 @@ class CrudEditorState extends State<CrudEditor> {
   }
 
   Future<void> _dialogBuilder(BuildContext context, Map<String, dynamic> data) {
-    logDebug('CRUD | _dialogBuilder | data: $data');
+    logDebug('CRUD / _dialogBuilder | data: $data');
     String message = "";
     for (var value in List<String>.from(data['messages'])) {
       message = "$message\n$value";
@@ -1787,7 +1929,7 @@ class CrudEditorState extends State<CrudEditor> {
 
   void _setError(String message, String code, [int severity = 0]) {
     if (gceMainDebug) {
-      logDebug('CRUD | _setError | message: $message, code: $code');
+      logDebug('CRUD / _setError | message: $message, code: $code');
     }
     if (severity == severityHigh) {
       _dialogBuilder(context, {
@@ -1844,7 +1986,7 @@ class CrudEditorState extends State<CrudEditor> {
               if (result == 'delete') {
                 _showDeleteConfirmation(getId(selectedItem['_id']));
               } else if (result == 'save') {
-                _saveItem(selectedItem);
+                _dataFormKey.currentState?.submit();
               }
             },
             itemBuilder: (BuildContext context) {
@@ -1866,6 +2008,7 @@ class CrudEditorState extends State<CrudEditor> {
         ],
       ),
       body: DataFormBody(
+        key: _dataFormKey,
         action: isCreation ? actionCreate : actionUpdate,
         editorConfig: editorConfig,
         constants: constants,
@@ -1950,20 +2093,14 @@ class CrudEditorState extends State<CrudEditor> {
       title: editorConfig.isNotEmpty && editorConfig.containsKey('title')
           ? editorConfig['title']
           : "",
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : isEditMode || isCreationForced
-          ? _buildDataForm()
-          : _buildList(),
+      body: CrudBusyBody(
+        isLoading: _isLoading,
+        child: isEditMode || isCreationForced ? _buildDataForm() : _buildList(),
+      ),
       floatingActionButton: isEditMode || isCreationForced
           ? null
           : FloatingActionButton(
-              onPressed: () => setState(() {
-                isEditMode = true;
-                isCreation = true;
-                selectedItem = _getEmptyItem();
-                originalSelectedItem = {};
-              }),
+              onPressed: () => _startCreate(),
               child: const Icon(Icons.add),
             ),
     );

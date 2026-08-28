@@ -1,8 +1,24 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'crud_editor_commons.dart';
+import 'utilities.dart';
 
 const gceSfUsrDebug = false;
+
+// Default prefix for generated user API keys (React: REACT_APP_API_KEYS_PREFIX).
+const apiKeysPrefix = 'sk-gsu-';
+
+// Generate a long hex access token (React: generateAccessToken).
+String generateAccessToken([int length = 64]) {
+  final Random random = Random.secure();
+  final List<int> bytes = List<int>.generate(
+    length,
+    (_) => random.nextInt(256),
+  );
+  return bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+}
 
 Future<Map<String, dynamic>> usersValidations(
   dynamic data,
@@ -114,5 +130,41 @@ Future<Map<String, dynamic>> usersDbPreWrite(
   }
   // Avoid passing the repeat password field to the backend
   result['fieldsToDelete'].add('passcode_repeat');
+  return result;
+}
+
+// Users api keys pre-form data load default values (dbPreRead)
+Future<Map<String, dynamic>> usersApiKeyDbPreRead(
+  dynamic data,
+  Map<String, dynamic> editorConfig,
+  String action,
+  Map<String, dynamic> params,
+  BuildContext? context,
+) async {
+  Map<String, dynamic> result = genericFuncArrayDefaultValue(data);
+  switch (action) {
+    case actionCreate:
+      final String accessTokenWaw = generateAccessToken();
+      final String accessToken = '$apiKeysPrefix$accessTokenWaw';
+      if (gceSfUsrDebug) {
+        await logDebug(
+          '>>> UsersApiKeyGenerate | access_token: $accessToken'
+          ' access_token_waw: $accessTokenWaw',
+        );
+      }
+      final Map<String, dynamic> dataMap = data is Map
+          ? Map<String, dynamic>.from(data)
+          : <String, dynamic>{};
+      result['fieldValues'] = {
+        ...dataMap,
+        'resultset': {'access_token': accessToken},
+      };
+      break;
+  }
+  if (gceSfUsrDebug) {
+    await logDebug(
+      '>>> UsersApiKeyGenerate | resp: $result data: $data action: $action',
+    );
+  }
   return result;
 }

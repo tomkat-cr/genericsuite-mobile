@@ -134,7 +134,10 @@ class AppCallablesSuper {
   /*
    * Get the user management related callbacks
    */
-  Map<String, dynamic> getUserCallbacks(BuildContext context) {
+  Map<String, dynamic> getUserCallbacks(
+    BuildContext context,
+    dynamic userData,
+  ) {
     // Example:
     // return {'specificFunctions': {}, "components": {}, "childComponents": {}};
     throw UnimplementedError();

@@ -29,6 +29,29 @@ String getBestApiKey(List<dynamic> userDataApiKeys) {
   return result;
 }
 
+Future<bool> saveToStorage(String storageKey, String storageValue) async {
+  final FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
+  return await storage
+      .write(key: storageKey, value: storageValue)
+      .then((value) {
+        return true;
+      })
+      .catchError((error) {
+        logError(
+          'currentUserService / saveToStorage / ERROR | storageKey: $storageKey'
+              ' | storageValue: $storageValue | error: $error',
+          'GCUS-STS-E010',
+        );
+        return false;
+      });
+}
+
+Future<bool> saveUserData(Map<String, dynamic> userData) async {
+  // user_data will have all the user data, including:
+  // _id field, name, lastname, phone, email, DOB, superuser, et al.
+  return await saveToStorage('user_data', json.encode(userData));
+}
+
 Future<Map<String, dynamic>> getCurrentUserData() {
   FlutterSecureStorage storage = storageLocator<FlutterSecureStorage>();
 
@@ -41,6 +64,7 @@ Future<Map<String, dynamic>> getCurrentUserData() {
       'userData': {},
       'error': false,
       'errorMessage': "",
+      'isSuperUser': false,
     };
 
     String jwtToken = config["jwtToken"];
@@ -52,7 +76,6 @@ Future<Map<String, dynamic>> getCurrentUserData() {
 
     Map<String, dynamic> payload = getJwtPayload(jwtToken);
     userData['currentUserId'] = payload["public_id"];
-
     String apiUrlUsersGetData = "users/current_user_d";
     if (cusDebug) {
       logDebug('getCurrentUserData | apiUrlUsersGetData: $apiUrlUsersGetData');
@@ -75,6 +98,9 @@ Future<Map<String, dynamic>> getCurrentUserData() {
       }
 
       userData['userData'] = data['resultset'];
+      userData['isSuperUser'] = userData['userData']['superuser'] == "1"
+          ? true
+          : false; // isAdmin
       if (cusDebug) {
         logDebug('getCurrentUserData | userData has been SET');
       }
@@ -84,18 +110,18 @@ Future<Map<String, dynamic>> getCurrentUserData() {
         return userData;
       }
 
-      apiUrlUsersGetData = "users_api_keys";
+      String apiUrlUsersGetApiKeys = "users_api_keys";
       Map<String, dynamic> getParams = {"user_id": userData['currentUserId']};
 
       if (cusDebug) {
         logDebug(
-          'getCurrentUserData | apiUrlUsersGetData: $apiUrlUsersGetData'
+          'getCurrentUserData | apiUrlUsersGetApiKeys: $apiUrlUsersGetApiKeys'
           ' | getParams: ${getParams.toString()}',
         );
       }
 
       return api
-          .httpsCall("get", apiUrlUsersGetData, {}, {}, getParams)
+          .httpsCall("get", apiUrlUsersGetApiKeys, {}, {}, getParams)
           .then((data) {
             if (data['error']) {
               logError(
