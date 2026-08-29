@@ -1,0 +1,90 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:genericsuite/services/form_field_service.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
+
+const String _actionRead = 'read';
+const String _actionUpdate = 'update';
+
+Widget _buildTestWidget({required bool readOnly, String fkValue = 'aaa'}) {
+  final editorConfig = {
+    'fieldElements': [
+      {
+        'name': 'user_id',
+        'type': 'select_table',
+        'related_table': 'users',
+        'label': 'User',
+        'readonly': readOnly,
+      },
+    ],
+    'selectFieldsOptionsPromises': {
+      'user_id': {
+        'promiseResult': {'aaa': 'John Doe', 'bbb': 'Jane Roe'},
+      },
+    },
+  };
+  final selectedItem = {
+    'user_id': fkValue,
+    'user_id_description': 'John Doe',
+  };
+
+  // ShadButton (used for the Save/Cancel actions) requires a ShadTheme
+  // ancestor, so the harness is wrapped in a minimal ShadApp.custom
+  // (mirrors CreateGsApp's own widget-tree root) instead of a bare
+  // MaterialApp.
+  return ShadApp.custom(
+    appBuilder: (context) => MaterialApp(
+      home: Scaffold(
+        body: DataFormBody(
+          editorConfig: editorConfig,
+          constants: const {},
+          selectedItem: selectedItem,
+          callbacks: const {},
+          currentUserData: const {},
+          action: readOnly ? _actionRead : _actionUpdate,
+          saveItem: (Map<String, dynamic> item) {},
+          setEditMode: (bool newEditMode) {},
+          setError: (String message, String code, [int severity = 0]) {},
+          props: const {},
+        ),
+      ),
+    ),
+  );
+}
+
+void main() {
+  testWidgets('select_table read-only shows description text',
+      (tester) async {
+    await tester.pumpWidget(_buildTestWidget(readOnly: true));
+    await tester.pumpAndSettle();
+
+    expect(find.text('John Doe'), findsOneWidget);
+    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+  });
+
+  testWidgets('select_table edit mode shows dropdown with options',
+      (tester) async {
+    await tester.pumpWidget(_buildTestWidget(readOnly: false));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    expect(find.text('Jane Roe'), findsWidgets);
+  });
+
+  testWidgets(
+      'select_table edit mode does not throw when FK value is stale '
+      '(missing from prefetched options)', (tester) async {
+    // 'zzz' simulates a deleted related row or one excluded by
+    // related_filter: it is not a key in selectFieldsOptionsPromises, so
+    // DropdownButtonFormField's initialValue must not be set to it, or
+    // Flutter throws an assertion (initialValue must be one of the
+    // DropdownMenuItem values).
+    await tester.pumpWidget(_buildTestWidget(readOnly: false, fkValue: 'zzz'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+  });
+}
