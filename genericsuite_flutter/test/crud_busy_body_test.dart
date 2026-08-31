@@ -3,15 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:genericsuite/widgets/crud_busy_body.dart';
 
 void main() {
-  testWidgets('keeps the form mounted while the loading spinner is shown',
-      (tester) async {
+  testWidgets('keeps the form mounted while the loading spinner is shown', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(
-          body: CrudBusyBody(
-            isLoading: true,
-            child: Text('FORM STAYS'),
-          ),
+          body: CrudBusyBody(isLoading: true, child: Text('FORM STAYS')),
         ),
       ),
     );
@@ -20,8 +18,7 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets(
-      'does not throw an overlay assertion when loading starts while a '
+  testWidgets('does not throw an overlay assertion when loading starts while a '
       'dropdown is open', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: _ToggleBusyScaffold()));
 

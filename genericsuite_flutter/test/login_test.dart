@@ -25,17 +25,13 @@ void main() {
   }
 
   group('validateUserPass (dynamic-dispatched instance method)', () {
-    testWidgets('rejects a username shorter than 4 characters', (
-      tester,
-    ) async {
+    testWidgets('rejects a username shorter than 4 characters', (tester) async {
       final state = await pumpLoginState(tester);
       final result = state.validateUserPass('abc', 'longenough');
       expect(result['error'], 'Invalid username');
     });
 
-    testWidgets('rejects a password shorter than 2 characters', (
-      tester,
-    ) async {
+    testWidgets('rejects a password shorter than 2 characters', (tester) async {
       final state = await pumpLoginState(tester);
       final result = state.validateUserPass('gooduser', 'a');
       expect(result['error'], 'Invalid password');
@@ -64,9 +60,7 @@ void main() {
     });
 
     testWidgets('shows a default welcome message keyed off getAppInfo() '
-        'when params is non-null but has no onboardingMessage', (
-      tester,
-    ) async {
+        'when params is non-null but has no onboardingMessage', (tester) async {
       await pumpLoginState(tester, params: const {});
       expect(find.text('Welcome to Test App'), findsOneWidget);
     });

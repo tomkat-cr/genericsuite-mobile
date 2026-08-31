@@ -10,11 +10,7 @@ class CrudBusyBody extends StatelessWidget {
   final bool isLoading;
   final Widget child;
 
-  const CrudBusyBody({
-    super.key,
-    required this.isLoading,
-    required this.child,
-  });
+  const CrudBusyBody({super.key, required this.isLoading, required this.child});
 
   @override
   Widget build(BuildContext context) {

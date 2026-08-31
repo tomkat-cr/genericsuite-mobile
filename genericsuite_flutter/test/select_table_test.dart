@@ -25,7 +25,9 @@ void main() {
       dbRow: {'user_id': 'aaa'},
       constants: {},
       selectFieldsOptionsPromises: {
-        'user_id': {'promiseResult': {'aaa': 'John Doe'}},
+        'user_id': {
+          'promiseResult': {'aaa': 'John Doe'},
+        },
       },
     );
     expect(result, 'John Doe');
@@ -42,13 +44,10 @@ void main() {
   });
 
   test('buildSelectTableDescriptionMap builds id->description map', () {
-    final map = buildSelectTableDescriptionMap(
-      [
-        {'_id': 'aaa', 'firstname': 'John', 'lastname': 'Doe'},
-        {'_id': 'bbb', 'firstname': 'Jane'},
-      ],
-      currentObj,
-    );
+    final map = buildSelectTableDescriptionMap([
+      {'_id': 'aaa', 'firstname': 'John', 'lastname': 'Doe'},
+      {'_id': 'bbb', 'firstname': 'Jane'},
+    ], currentObj);
     expect(map, {'aaa': 'John Doe', 'bbb': 'Jane'});
   });
 }

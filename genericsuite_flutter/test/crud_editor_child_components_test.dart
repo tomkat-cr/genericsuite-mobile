@@ -57,8 +57,9 @@ void main() {
     expect(receivedProps?['showAppMenu'], false);
   });
 
-  testWidgets('shows an error tile when the child builder is not registered',
-      (tester) async {
+  testWidgets('shows an error tile when the child builder is not registered', (
+    tester,
+  ) async {
     final editorConfig = {
       'childComponents': ['MissingChild'],
     };
@@ -136,14 +137,16 @@ void main() {
     );
   }
 
-  testWidgets('DataFormBody shows child sections in update mode',
-      (tester) async {
+  testWidgets('DataFormBody shows child sections in update mode', (
+    tester,
+  ) async {
     await tester.pumpWidget(dataFormApp(actionUpdate));
     expect(find.text('Users Food Times'), findsOneWidget);
   });
 
-  testWidgets('DataFormBody hides child sections in create mode',
-      (tester) async {
+  testWidgets('DataFormBody hides child sections in create mode', (
+    tester,
+  ) async {
     await tester.pumpWidget(dataFormApp(actionCreate));
     expect(find.text('Users Food Times'), findsNothing);
   });

@@ -56,19 +56,16 @@ void main() {
     },
   );
 
-  testWidgets(
-    'shows an empty app bar title slot when neither title, logo nor '
-    'appBarTitleText are configured',
-    (tester) async {
-      await setUpTestLocators(appCallables: _NoBrandingThemeCallables());
+  testWidgets('shows an empty app bar title slot when neither title, logo nor '
+      'appBarTitleText are configured', (tester) async {
+    await setUpTestLocators(appCallables: _NoBrandingThemeCallables());
 
-      await tester.pumpWidget(wrap(AppFrame(body: const SizedBox())));
-      await tester.pump();
+    await tester.pumpWidget(wrap(AppFrame(body: const SizedBox())));
+    await tester.pump();
 
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.byType(Image), findsNothing);
-    },
-  );
+    expect(find.byType(AppBar), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
+  });
 
   testWidgets('showBackButton renders a back arrow that pops the route', (
     tester,

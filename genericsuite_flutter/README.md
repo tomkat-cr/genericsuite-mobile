@@ -64,7 +64,15 @@ start using the package.
 flutter create exampleapp
 ```
 
-- Open the `pubspec.yaml` file and add the GenericSuite to the `dependencies:` section:
+- Add the genericsuite package:
+
+```bash
+flutter pub add genericsuite
+```
+
+Or manually:
+
+1. Open the `pubspec.yaml` file and add the GenericSuite to the `dependencies:` section:
 
 ```yaml
   genericsuite:
@@ -80,15 +88,15 @@ flutter create exampleapp
 flutter pub get
 ```
 
+## Usage
+
+- Check the [GenericSuite Mobile Development Guide](https://genericsuite.carlosjramirez.com/Mobile-Development/) for more information about how to create mobiles apps using GenericSuite.
+
 ### Configuration
 
 - Check the [App Creation and Configuration Guide](https://genericsuite.carlosjramirez.com/Configuration-Guide/) for more information about how to create the JSON configuration files.
 
 - Check the [Backend Guide](https://genericsuite.carlosjramirez.com/Backend-Development/GenericSuite-Core) for more information about how to create the API.
-
-## Usage
-
-- Check the [GenericSuite Mobile Development Guide](https://genericsuite.carlosjramirez.com/Mobile-Development/) for more information about how to create mobiles apps using GenericSuite.
 
 ## Additional information
 

@@ -23,10 +23,7 @@ Widget _buildTestWidget({required bool readOnly, String fkValue = 'aaa'}) {
       },
     },
   };
-  final selectedItem = {
-    'user_id': fkValue,
-    'user_id_description': 'John Doe',
-  };
+  final selectedItem = {'user_id': fkValue, 'user_id_description': 'John Doe'};
 
   // ShadButton (used for the Save/Cancel actions) requires a ShadTheme
   // ancestor, so the harness is wrapped in a minimal ShadApp.custom
@@ -53,8 +50,7 @@ Widget _buildTestWidget({required bool readOnly, String fkValue = 'aaa'}) {
 }
 
 void main() {
-  testWidgets('select_table read-only shows description text',
-      (tester) async {
+  testWidgets('select_table read-only shows description text', (tester) async {
     await tester.pumpWidget(_buildTestWidget(readOnly: true));
     await tester.pumpAndSettle();
 
@@ -62,8 +58,9 @@ void main() {
     expect(find.byType(DropdownButtonFormField<String>), findsNothing);
   });
 
-  testWidgets('select_table edit mode shows dropdown with options',
-      (tester) async {
+  testWidgets('select_table edit mode shows dropdown with options', (
+    tester,
+  ) async {
     await tester.pumpWidget(_buildTestWidget(readOnly: false));
     await tester.pumpAndSettle();
 
@@ -73,8 +70,7 @@ void main() {
     expect(find.text('Jane Roe'), findsWidgets);
   });
 
-  testWidgets(
-      'select_table edit mode does not throw when FK value is stale '
+  testWidgets('select_table edit mode does not throw when FK value is stale '
       '(missing from prefetched options)', (tester) async {
     // 'zzz' simulates a deleted related row or one excluded by
     // related_filter: it is not a key in selectFieldsOptionsPromises, so
