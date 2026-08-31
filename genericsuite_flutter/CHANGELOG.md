@@ -26,6 +26,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Changed
 - Main CHANGELOG.md file replaced by a link to the genericsuite_flutter CHANGELOG.md file, and all the release notes for the GenericSuite mobile Flutter/Dart package moved to genericsuite_flutter CHANGELOG.md [GS-261].
 - Main README.md file cleaned up and add a link to the genericsuite_flutter README.md file [GS-261].
+- genericsuite_flutter README.md file updated with more information about the package and usage examples, and TODOs removed [GS-261].
 - Code formatted with dart format [GS-261].
 - pubspec.yaml file updated to reflect the new version [GS-261].
 

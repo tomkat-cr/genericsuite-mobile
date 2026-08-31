@@ -1,15 +1,3 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
 # GenericSuite for Mobile (Flutter/Dart version)
 
 <img 
@@ -35,16 +23,7 @@ Welcome to [GenericSuite](https://genericsuite.carlosjramirez.com), a comprehens
 
 The perfect companion for this mobile solution is the [backend version of The GenericSuite](https://genericsuite.carlosjramirez.com/Backend-Development/GenericSuite-Core/).
 
-<!--
-There's a version of this library with AI features: [The GenericSuite AI](https://github.com/tomkat-cr/genericsuite-mobile/genericsuite-ai).
--->
-
 ## Getting started
-
-<!--
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
--->
 
 ### Pre-requisites
 
@@ -56,13 +35,15 @@ start using the package.
 - [Git](https://www.atlassian.com/git/tutorials/install-git)
 - [Make](https://formulae.brew.sh/formula/make) (Mac) | Linux has Make installed by default | [Make](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows) (Windows)
 
-### Installation
+#### Don't have a Flutter project?
 
-- Create a new Flutter project:
+Create a new Flutter project using the `flutter create` command:
 
 ```bash
 flutter create exampleapp
 ```
+
+### Installation
 
 - Add the genericsuite package:
 
@@ -82,7 +63,7 @@ Or manually:
       path: genericsuite_flutter
 ```
 
-- Install the dependencies.
+2. Install the dependencies.
 
 ```bash
 flutter pub get
@@ -92,6 +73,10 @@ flutter pub get
 
 - Check the [GenericSuite Mobile Development Guide](https://genericsuite.carlosjramirez.com/Mobile-Development/) for more information about how to create mobiles apps using GenericSuite.
 
+### Usage examples
+
+- Check the [Usage Examples](https://genericsuite.carlosjramirez.com/Mobile-Development/#usage) for code examples and app building instructions.
+
 ### Configuration
 
 - Check the [App Creation and Configuration Guide](https://genericsuite.carlosjramirez.com/Configuration-Guide/) for more information about how to create the JSON configuration files.
@@ -99,12 +84,6 @@ flutter pub get
 - Check the [Backend Guide](https://genericsuite.carlosjramirez.com/Backend-Development/GenericSuite-Core) for more information about how to create the API.
 
 ## Additional information
-
-<!--
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
--->
 
 ### Package Documentation and Starter Template
 
