@@ -424,10 +424,12 @@ class DataFormBodyState extends State<DataFormBody> {
           try {
             DateTime.parse(fieldElementValue);
 
+            // A picked date is "yyyy-MM-dd". Keep it as it is.
             if (!isValidCustomDateFormat(
-              fieldElementValue,
-              'yyyy-MM-dd HH:mm:ss',
-            )) {
+                  fieldElementValue,
+                  'yyyy-MM-dd HH:mm:ss',
+                ) &&
+                !isValidCustomDateFormat(fieldElementValue, 'yyyy-MM-dd')) {
               fieldElementValue = DateTime.now().toString().split('.')[0];
             }
           } catch (_) {
