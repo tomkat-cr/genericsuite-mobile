@@ -10,8 +10,11 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Added
 
 ### Changed
+- `date` and `datetime-local` fields now show the stored value in UTC, not in the device time zone.
 
 ### Fixed
+- Date fields no longer move by the device time zone offset each time a record is opened and saved.
+- A date selected in the date picker is no longer replaced by the current time in the form.
 
 ### Security
 
