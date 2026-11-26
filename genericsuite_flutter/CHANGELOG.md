@@ -8,9 +8,12 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [Unreleased] - YYYY-MM-DD
 
 ### Added
+- `colsForListingLine1` / `colsForListingLine2` can be set in the frontend JSON config file [GS-346].
+- Even/odd row background and text colors and column separator theme params in `theme_config_defaults.dart` [GS-346].
 
 ### Changed
 - `date` and `datetime-local` fields now show the stored value in UTC, not in the device time zone.
+- Listing values are formatted (select labels, dates, booleans) and empty values are skipped [GS-346].
 
 ### Fixed
 - Date fields no longer move by the device time zone offset each time a record is opened and saved.

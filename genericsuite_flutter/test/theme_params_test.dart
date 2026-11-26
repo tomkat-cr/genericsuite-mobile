@@ -33,6 +33,21 @@ void main() {
     expect(shadColorSchemeName, 'green');
   });
 
+  test('defaultThemeParams carries the listing screen tokens [GS-346]', () {
+    expect(
+      defaultThemeParams['listingRowEvenBackgroundColor'],
+      const Color(0xFFE5E7EB),
+    );
+    expect(
+      defaultThemeParams['listingRowOddBackgroundColor'],
+      Colors.transparent,
+    );
+    expect(defaultThemeParams['listingRowEvenTextColor'], textColor);
+    expect(defaultThemeParams['listingRowOddTextColor'], textColor);
+    expect(defaultThemeParams['listingRowSubtitleColor'], secondaryTextColor);
+    expect(defaultThemeParams['listingColumnSeparator'], ' · ');
+  });
+
   test('getThemeParams() returns the defaults and keeps the legacy keys', () {
     final params = AppCallablesSuper().getThemeParams();
     for (final key in defaultThemeParams.keys) {

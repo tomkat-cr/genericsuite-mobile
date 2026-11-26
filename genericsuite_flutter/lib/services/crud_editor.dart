@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:genericsuite/services/app_callables_super.dart';
 import 'package:genericsuite/services/crud_editor_commons.dart';
+import 'package:genericsuite/services/crud_editor_listing.dart';
 import 'package:genericsuite/services/crud_editor_selector.dart';
 import 'package:genericsuite/services/crud_editor_sf_filters.dart';
 import 'package:genericsuite/services/crud_editor_sf_timestamps.dart';
@@ -14,6 +16,7 @@ import 'package:genericsuite/services/http_service.dart';
 import 'package:genericsuite/services/locator_service.dart';
 import 'package:genericsuite/services/md5_utilities.dart';
 import 'package:genericsuite/services/message_service.dart';
+import 'package:genericsuite/services/theme_config_defaults.dart';
 import 'package:genericsuite/services/utilities.dart';
 import 'package:genericsuite/widgets/app_frame.dart';
 import 'package:genericsuite/widgets/crud_busy_body.dart';
@@ -604,6 +607,27 @@ class CrudEditorState extends State<CrudEditor> {
       );
     }
 
+    // Listing columns: props > frontend JSON > class default [GS-346]
+    final colsLine1 = resolveListingCols(
+      key: 'colsForListingLine1',
+      props: widget.props,
+      editorConfig: editorConfig,
+      defaultValue: colsForListingLine1,
+    );
+    final colsLine2 = resolveListingCols(
+      key: 'colsForListingLine2',
+      props: widget.props,
+      editorConfig: editorConfig,
+      defaultValue: colsForListingLine2,
+    );
+    final clampedCols = clampListingCols(
+      colsLine1,
+      colsLine2,
+      listingFieldElements.length,
+    );
+    colsForListingLine1 = clampedCols.line1;
+    colsForListingLine2 = clampedCols.line2;
+
     // Reenter on create
     if (!editorConfig.containsKey('createReenter') ||
         editorConfig['createReenter'] == null) {
@@ -645,14 +669,6 @@ class CrudEditorState extends State<CrudEditor> {
       if (widget.props!.containsKey('searchFilters')) {
         // TODO: make searchFilters work
         searchFilters = widget.props!['searchFilters'];
-      }
-      if (widget.props!.containsKey('colsForListingLine1')) {
-        // TODO: check it this work
-        colsForListingLine1 = widget.props!['colsForListingLine1'];
-      }
-      if (widget.props!.containsKey('colsForListingLine2')) {
-        // TODO: check it this work
-        colsForListingLine2 = widget.props!['colsForListingLine2'];
       }
     }
 
@@ -1773,31 +1789,27 @@ class CrudEditorState extends State<CrudEditor> {
   }
 
   /*
-   * Get the first column name from the editor config
+   * Get the options Map {value: label} of a listing field (if any)
    */
-  String _getColumnName(int col) {
-    if (col >= listingFieldElements.length) {
-      return '';
+  dynamic _getListingSelectOptions(Map<String, dynamic> field) {
+    switch (field['type']) {
+      case 'select':
+        return constants[field['select_elements']];
+      case 'select_component':
+        return editorConfig['selectFieldsOptionsPromises']?[field['component'] ??
+            field['name']]?['promiseResult'];
+      case 'select_table':
+        return editorConfig['selectFieldsOptionsPromises']?[field['name']]?['promiseResult'];
     }
-    String name = listingFieldElements[col]['name'];
-    return name;
+    return null;
   }
 
-  /*
-   * Client-side fallback for select_table listing descriptions when
-   * the backend didn't provide '{name}_description'.
-   */
-  String? _selectTableFallbackDescription(
-    String name,
-    Map<String, dynamic> item,
-  ) {
-    final options =
-        editorConfig['selectFieldsOptionsPromises']?[name]?['promiseResult'];
-    final value = item[name];
-    if (options == null || value == null) {
-      return null;
+  Map<String, dynamic> _getListingThemeParams() {
+    try {
+      return appCallablesLocator.get<AppCallablesSuper>().getThemeParams();
+    } catch (_) {
+      return defaultThemeParams;
     }
-    return options[value.toString()];
   }
 
   String _buildListingLine(
@@ -1805,18 +1817,25 @@ class CrudEditorState extends State<CrudEditor> {
     int colStart,
     int colEnd,
   ) {
-    String line = '';
-    for (int i = colStart; i < colEnd + 1; i++) {
-      String name = _getColumnName(i);
-      if (i < listingFieldElements.length &&
-          listingFieldElements[i]['type'] == 'select_table') {
-        line +=
-            '${item['${name}_description'] ?? _selectTableFallbackDescription(name, item) ?? item[name]} ';
-      } else {
-        line += '${item[name]} ';
-      }
+    final themeParams = _getListingThemeParams();
+    final separator =
+        '${getListingThemeParam(themeParams, 'listingColumnSeparator')}';
+    final values = <String>[];
+    for (
+      int i = colStart;
+      i < colEnd + 1 && i < listingFieldElements.length;
+      i++
+    ) {
+      final field = Map<String, dynamic>.from(listingFieldElements[i]);
+      values.add(
+        formatListingValue(
+          field,
+          item,
+          selectOptions: _getListingSelectOptions(field),
+        ),
+      );
     }
-    return line.trim();
+    return joinListingValues(values, separator);
   }
 
   /*
@@ -1832,6 +1851,7 @@ class CrudEditorState extends State<CrudEditor> {
             colsForListingLine1 + colsForListingLine2 - 1,
           )
         : "";
+    final themeParams = _getListingThemeParams();
 
     if (gceMainDebug) {
       logDebug(
@@ -1839,8 +1859,19 @@ class CrudEditorState extends State<CrudEditor> {
       );
     }
     return ListTile(
+      tileColor: listingRowBackgroundColor(index, themeParams),
+      textColor: listingRowTextColor(index, themeParams),
       title: Text(title),
-      subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
+      subtitle: subtitle.isNotEmpty
+          ? Text(
+              subtitle,
+              style: TextStyle(
+                color:
+                    getListingThemeParam(themeParams, 'listingRowSubtitleColor')
+                        as Color,
+              ),
+            )
+          : null,
       onTap: () => {
         _loadSelectedItem(rowId(item, false)).then((value) {
           selectedItem = value;
