@@ -26,7 +26,7 @@ void convertObjectId(Map<String, dynamic> recordset) {
 
 // JSON file functions
 
-Map<String, dynamic> fixMapString(var map) {
+Map<String, dynamic> fixMapString(dynamic map) {
   return Map<String, dynamic>.from(map);
 }
 
@@ -94,8 +94,8 @@ String getTodayDateTime() {
 // Misc
 
 String getValueToEdit(
-  var itemValue,
-  var defaultValue, [
+  dynamic itemValue,
+  dynamic defaultValue, [
   Map<String, dynamic>? userData = const {},
 ]) {
   Map<String, dynamic> vars = {

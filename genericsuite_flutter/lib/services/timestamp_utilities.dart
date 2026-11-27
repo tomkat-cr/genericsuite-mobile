@@ -19,8 +19,11 @@ String timestampToDate({
 
   double timestampUnixEpoch = double.parse(timestamp.toString()) * 1000;
 
+  // The date of a stored value is its UTC calendar date. The save path reads
+  // date text as UTC, so the read path must build a UTC DateTime too.
   DateTime date = DateTime.fromMillisecondsSinceEpoch(
     timestampUnixEpoch.toInt(),
+    isUtc: true,
   );
   if (tsUtDebug) {
     logDebug(
@@ -48,7 +51,8 @@ String timestampToDate({
     if (!militaryTime) {
       return '${date.toIso8601String().split("T")[0]}T$formattedTime';
     }
-    return date.toIso8601String();
+    // A UTC value ends with "Z". Remove it to keep the old text format.
+    return date.toIso8601String().replaceFirst(RegExp(r'Z$'), '');
   }
   return date.toIso8601String().split("T")[0];
 }

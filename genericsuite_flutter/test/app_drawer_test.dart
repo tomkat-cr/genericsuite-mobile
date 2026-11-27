@@ -33,10 +33,7 @@ void main() {
       'rejects items with no location/path/on_click unless type == editor',
       (tester) async {
         final state = await pumpDrawerState(tester);
-        expect(
-          state.menuItemValidation(<String, dynamic>{'title': 'X'}),
-          '',
-        );
+        expect(state.menuItemValidation(<String, dynamic>{'title': 'X'}), '');
         expect(
           state.menuItemValidation(<String, dynamic>{
             'title': 'X',
@@ -62,9 +59,7 @@ void main() {
       );
     });
 
-    testWidgets('defaults sec_group to the default user group', (
-      tester,
-    ) async {
+    testWidgets('defaults sec_group to the default user group', (tester) async {
       final state = await pumpDrawerState(tester);
       final item = <String, dynamic>{
         'title': 'X',
@@ -91,16 +86,11 @@ void main() {
 
     testWidgets('returns on_click when element is empty', (tester) async {
       final state = await pumpDrawerState(tester);
-      final item = <String, dynamic>{
-        'title': 'X',
-        'on_click': 'doThing',
-      };
+      final item = <String, dynamic>{'title': 'X', 'on_click': 'doThing'};
       expect(state.menuItemValidation(item), 'doThing');
     });
 
-    testWidgets('returns element when present, over on_click', (
-      tester,
-    ) async {
+    testWidgets('returns element when present, over on_click', (tester) async {
       final state = await pumpDrawerState(tester);
       final item = <String, dynamic>{
         'title': 'X',
@@ -121,8 +111,8 @@ void main() {
         await setUpTestLocators();
 
         await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AppDrawer())),
-      );
+          const MaterialApp(home: Scaffold(body: AppDrawer())),
+        );
 
         // First frame: _isLoading is still true.
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -145,8 +135,8 @@ void main() {
       (tester) async {
         await setUpTestLocators();
         await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: AppDrawer())),
-      );
+          const MaterialApp(home: Scaffold(body: AppDrawer())),
+        );
         await tester.pumpAndSettle();
 
         final dynamic state = tester.state(find.byType(AppDrawer));

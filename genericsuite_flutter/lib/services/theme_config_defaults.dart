@@ -67,6 +67,16 @@ const Color warningForegroundColor = Colors.white;
 const Color successBackgroundColor = Color(0xFF34C759); // systemGreen
 const Color successForegroundColor = Colors.white;
 
+// Listing screen tokens [GS-346]. Row index 0 is "even" (same as GS FE).
+// Even rows: Tailwind gray-200 (GS FE bg-gray-200). Odd rows: no background.
+const Color listingRowEvenBackgroundColor = Color(0xFFE5E7EB);
+const Color listingRowOddBackgroundColor = Colors.transparent;
+const Color listingRowEvenTextColor = textColor;
+const Color listingRowOddTextColor = textColor;
+const Color listingRowSubtitleColor = secondaryTextColor;
+// Text between the column values of a listing line
+const String listingColumnSeparator = ' · ';
+
 const String closeButtonPlacement = "bottom"; // "bottom" or "right"
 
 const String appBarLogoPath = 'assets/images/app_logo_horizontal.png';
@@ -113,6 +123,12 @@ const Map<String, dynamic> defaultThemeParams = {
   'warningForegroundColor': warningForegroundColor,
   'successBackgroundColor': successBackgroundColor,
   'successForegroundColor': successForegroundColor,
+  'listingRowEvenBackgroundColor': listingRowEvenBackgroundColor,
+  'listingRowOddBackgroundColor': listingRowOddBackgroundColor,
+  'listingRowEvenTextColor': listingRowEvenTextColor,
+  'listingRowOddTextColor': listingRowOddTextColor,
+  'listingRowSubtitleColor': listingRowSubtitleColor,
+  'listingColumnSeparator': listingColumnSeparator,
   'closeButtonPlacement': closeButtonPlacement,
   'shadColorSchemeName': shadColorSchemeName,
   'drawerHeaderLogoPath': drawerHeaderLogoPath,
