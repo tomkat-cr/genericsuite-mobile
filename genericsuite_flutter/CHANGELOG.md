@@ -8,8 +8,21 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ## [Unreleased] - YYYY-MM-DD
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Security
+
+### Removed
+
+
+## [0.6.0] - 2026-11-27
+
+### Added
 - `colsForListingLine1` / `colsForListingLine2` can be set in the frontend JSON config file [GS-346].
-- Even/odd row background and text colors and column separator theme params in `theme_config_defaults.dart` [GS-346].
+- Even/odd row background and text colors and column separator theme params (`listingRowEvenBackgroundColor`, `listingRowOddBackgroundColor`, `listingRowEvenTextColor`, `listingRowOddTextColor`, `listingRowSubtitleColor`, and `listingColumnSeparator`) in `theme_config_defaults.dart` Theming table [GS-346].
 
 ### Changed
 - `date` and `datetime-local` fields now show the stored value in UTC, not in the device time zone.
@@ -18,10 +31,6 @@ This project adheres to [Semantic Versioning](http://semver.org/) and [Keep a Ch
 ### Fixed
 - Date fields no longer move by the device time zone offset each time a record is opened and saved.
 - A date selected in the date picker is no longer replaced by the current time in the form.
-
-### Security
-
-### Removed
 
 
 ## [0.5.1] - 2026-08-31
